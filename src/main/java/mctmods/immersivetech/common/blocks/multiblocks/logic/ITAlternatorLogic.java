@@ -55,7 +55,7 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
 
         int output = 4096;
 
-        //state.energy.receiveEnergy(8192, false);
+        state.energy.receiveEnergy(8192, false);
         List<IEnergyStorage> presentOutputs = state.energyOutputs.stream()
                 .map(CapabilityReference::getNullable)
                 .filter(Objects::nonNull)
@@ -65,12 +65,20 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         if (!presentOutputs.isEmpty() && EnergyHelper.distributeFlux(presentOutputs, output, true) < ENERGY_CAPACITY) {
-            int i = EnergyHelper.distributeFlux(presentOutputs, output, false);
-            ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 1: " + i);
+            // used for debugging
+            //int i = EnergyHelper.distributeFlux(presentOutputs, output, false);
+            //ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 1: " + i);
+            //
+
+            EnergyHelper.distributeFlux(presentOutputs, output, false);
         }
         if (!presentOutputs2.isEmpty() && EnergyHelper.distributeFlux(presentOutputs2, output, true) < ENERGY_CAPACITY) {
-            int i = EnergyHelper.distributeFlux(presentOutputs2, output, false);
-            ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 2: " + i);
+            // used for debugging
+            //int i = EnergyHelper.distributeFlux(presentOutputs2, output, false);
+            //ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 2: " + i);
+            //
+
+            EnergyHelper.distributeFlux(presentOutputs2, output, false);
         }
         // this just updates things, avoid running this if possible but it *is* required if you want things to sync properly
         ctx.markMasterDirty();
@@ -99,12 +107,17 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
         {
             if(position.side()==null||(
                     position.side()==RelativeBlockFace.RIGHT&&ENERGY_OUTPUTS_LEFT.contains(position.posInMultiblock())
-            )||(
+            ))
+            {
+                ITLib.IT_LOGGER.info("Alternator: getCapability returning energyCap.cast()");
+                return state.energyCap.cast(ctx);
+            }
+            if(position.side()==null||(
                     position.side()==RelativeBlockFace.LEFT&&ENERGY_OUTPUTS_RIGHT.contains(position.posInMultiblock())
             ))
             {
                 ITLib.IT_LOGGER.info("Alternator: getCapability returning energyCap.cast()");
-                return ctx.getState().energyCap.cast(ctx);
+                return state.energyCap.cast(ctx);
             }
         }
 
@@ -129,9 +142,9 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
             for(BlockPos pos : ENERGY_OUTPUTS_LEFT) {
                 outputs.add(ctx.getCapabilityAt(ForgeCapabilities.ENERGY, pos, RelativeBlockFace.RIGHT));
                 ITLib.IT_LOGGER.info("Alternator: State() LEFT");
-                ITLib.IT_LOGGER.info("Alternator: State() energy 1: x" + pos.getX());
-                ITLib.IT_LOGGER.info("Alternator: State() energy 1: y" + pos.getY());
-                ITLib.IT_LOGGER.info("Alternator: State() energy 1: z" + pos.getZ());
+                ITLib.IT_LOGGER.info("Alternator: State() energy 1: x " + pos.getX());
+                ITLib.IT_LOGGER.info("Alternator: State() energy 1: y " + pos.getY());
+                ITLib.IT_LOGGER.info("Alternator: State() energy 1: z " + pos.getZ());
             }
             for(BlockPos pos : ENERGY_OUTPUTS_RIGHT) {
                 outputs2.add(ctx.getCapabilityAt(ForgeCapabilities.ENERGY, pos, RelativeBlockFace.LEFT));

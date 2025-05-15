@@ -8,7 +8,6 @@ import blusunrize.lib.manual.Tree.InnerNode;
 import mctmods.immersivetech.client.menu.multiblock.AdvCokeOvenScreen;
 import mctmods.immersivetech.client.menu.multiblock.BoilerScreen;
 import mctmods.immersivetech.common.ITTags;
-import mctmods.immersivetech.common.blocks.multiblocks.ITMultiblocks;
 import mctmods.immersivetech.core.lib.ITLib;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
