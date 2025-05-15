@@ -1,0 +1,51 @@
+# @file mods.toml
+# @spec TOML v0.5.0 (https://github.com/toml-lang/toml)
+#
+modLoader="javafml"
+loaderVersion="[25,)"
+license="LGPL-3.0"
+
+[[mods]]
+modId = "immersivetech"
+version = "${version}"
+displayName = "Immersive Technology"
+description = "An in development version of Immersive Technology for 1.20.1."
+authors = "tgstyle"
+displayURL = "https://minecraft.curseforge.com/projects/immersive-geology/"
+logoFile = "logo.png"
+credits = "tgstyle, Engineer Peter, MagneticPrism (DotPrism/Prism)"
+
+[[dependencies.immersivetech]]
+modId="forge"
+mandatory=true
+versionRange="[47.1.106,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.immersivetech]]
+modId="minecraft"
+mandatory=true
+versionRange="[${mc_version}]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.immersivetech]]
+modId="immersiveengineering"
+mandatory=true
+versionRange="[${version_ie},]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.immersivetech]]
+modId="immersivegeology"
+mandatory=true
+versionRange="[${version_ig},]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.immersivetech]]
+modId="jei"
+mandatory=false
+versionRange="[${jei_version},)"
+ordering="NONE"
+side="BOTH"
