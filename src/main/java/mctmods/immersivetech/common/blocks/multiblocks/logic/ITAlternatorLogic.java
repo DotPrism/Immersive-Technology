@@ -1,6 +1,7 @@
 package mctmods.immersivetech.common.blocks.multiblocks.logic;
 
 import blusunrize.immersiveengineering.api.energy.AveragingEnergyStorage;
+import blusunrize.immersiveengineering.api.energy.MutableEnergyStorage;
 import blusunrize.immersiveengineering.api.energy.NullEnergyStorage;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.IClientTickableComponent;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.IServerTickableComponent;
@@ -51,11 +52,15 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
     {
         ITLib.IT_LOGGER.info("Alternator: tickServer Start");
         final State state = ctx.getState();
-        boolean active = ctx.getState().active;
+        boolean active = state.active;
 
         int output = 4096;
 
-        state.energy.receiveEnergy(8192, false);
+        if (active)
+        {
+            state.energy.receiveEnergy(8192, false);
+        }
+
         List<IEnergyStorage> presentOutputs = state.energyOutputs.stream()
                 .map(CapabilityReference::getNullable)
                 .filter(Objects::nonNull)
@@ -66,20 +71,21 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
                 .collect(Collectors.toList());
         if (!presentOutputs.isEmpty() && EnergyHelper.distributeFlux(presentOutputs, output, true) < ENERGY_CAPACITY) {
             // used for debugging
-            //int i = EnergyHelper.distributeFlux(presentOutputs, output, false);
-            //ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 1: " + i);
+            int i = EnergyHelper.distributeFlux(presentOutputs, output, true);
+            ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 1: " + i);
             //
 
             EnergyHelper.distributeFlux(presentOutputs, output, false);
         }
         if (!presentOutputs2.isEmpty() && EnergyHelper.distributeFlux(presentOutputs2, output, true) < ENERGY_CAPACITY) {
             // used for debugging
-            //int i = EnergyHelper.distributeFlux(presentOutputs2, output, false);
-            //ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 2: " + i);
+            int i = EnergyHelper.distributeFlux(presentOutputs2, output, true);
+            ITLib.IT_LOGGER.info("Alternator: tickServer Outputting energy 2: " + i);
             //
 
             EnergyHelper.distributeFlux(presentOutputs2, output, false);
         }
+
         // this just updates things, avoid running this if possible but it *is* required if you want things to sync properly
         ctx.markMasterDirty();
         ctx.requestMasterBESync();
@@ -101,8 +107,6 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
     public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap)
     {
         ITLib.IT_LOGGER.info("Alternator: getCapability start");
-        final State state = ctx.getState();
-
         if(cap==ForgeCapabilities.ENERGY)
         {
             if(position.side()==null||(
@@ -110,14 +114,14 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
             ))
             {
                 ITLib.IT_LOGGER.info("Alternator: getCapability returning energyCap.cast()");
-                return state.energyCap.cast(ctx);
+                return ctx.getState().energyCap.cast(ctx);
             }
             if(position.side()==null||(
                     position.side()==RelativeBlockFace.LEFT&&ENERGY_OUTPUTS_RIGHT.contains(position.posInMultiblock())
             ))
             {
                 ITLib.IT_LOGGER.info("Alternator: getCapability returning energyCap.cast()");
-                return state.energyCap.cast(ctx);
+                return ctx.getState().energyCap.cast(ctx);
             }
         }
 
@@ -126,7 +130,7 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
 
     public static class State implements IMultiblockState
     {
-        public final AveragingEnergyStorage energy = new AveragingEnergyStorage(ENERGY_CAPACITY);
+        public final MutableEnergyStorage energy = new MutableEnergyStorage(ENERGY_CAPACITY, 8192, 4096);
         private final List<CapabilityReference<IEnergyStorage>> energyOutputs;
         private final List<CapabilityReference<IEnergyStorage>> energyOutputs2;
 
@@ -136,7 +140,7 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
         public State(IInitialMultiblockContext<State> ctx)
         {
             ITLib.IT_LOGGER.info("Alternator: State");
-            this.energyCap = new StoredCapability<>(this.energy);
+            this.energyCap = new StoredCapability<>(energy);
             ImmutableList.Builder<CapabilityReference<IEnergyStorage>> outputs = ImmutableList.builder();
             ImmutableList.Builder<CapabilityReference<IEnergyStorage>> outputs2 = ImmutableList.builder();
             for(BlockPos pos : ENERGY_OUTPUTS_LEFT) {

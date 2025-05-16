@@ -23,10 +23,7 @@ import mctmods.immersivetech.common.blocks.CokeOvenPreheaterBlockEntity;
 import mctmods.immersivetech.common.blocks.ReinforcedCokeBrick;
 import mctmods.immersivetech.common.blocks.helper.ITBlockInterfaces;
 import mctmods.immersivetech.common.blocks.helper.ITMultiblockBEType;
-import mctmods.immersivetech.common.blocks.multiblocks.ITAdvancedCokeOven;
-import mctmods.immersivetech.common.blocks.multiblocks.ITAlternator;
-import mctmods.immersivetech.common.blocks.multiblocks.ITBoiler;
-import mctmods.immersivetech.common.blocks.multiblocks.ITTemplateMultiblock;
+import mctmods.immersivetech.common.blocks.multiblocks.*;
 import mctmods.immersivetech.common.blocks.multiblocks.logic.helper.ITMultiblockBuilder;
 import mctmods.immersivetech.common.items.ITMBFormationItem;
 import mctmods.immersivetech.core.lib.ITLib;
@@ -128,6 +125,7 @@ public class ITRegistrationHolder
     {
         registerMB("boiler", ITBoiler.INSTANCE, ITMultiblockProvider.BOILER);
         registerMB("alternator", ITAlternator.INSTANCE, ITMultiblockProvider.ALTERNATOR);
+        registerMB("steam_turbine", ITSteamTurbine.INSTANCE, ITMultiblockProvider.STEAM_TURBINE);
         registerMB("coke_oven_advanced", ITAdvancedCokeOven.INSTANCE, ITMultiblockProvider.ADV_COKE_OVEN);
     }
 

@@ -4,6 +4,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistra
 import mctmods.immersivetech.common.blocks.multiblocks.logic.ITAdvancedCokeOvenLogic;
 import mctmods.immersivetech.common.blocks.multiblocks.logic.ITAlternatorLogic;
 import mctmods.immersivetech.common.blocks.multiblocks.logic.ITBoilerLogic;
+import mctmods.immersivetech.common.blocks.multiblocks.logic.ITSteamTurbineLogic;
 
 public class ITMultiblockProvider
 {
@@ -18,6 +19,10 @@ public class ITMultiblockProvider
     public static final MultiblockRegistration<ITAlternatorLogic.State> ALTERNATOR =
             ITRegistrationHolder.metal(new ITAlternatorLogic(), "alternator")
                     .structure(() -> ITRegistrationHolder.getMBTemplate.apply("alternator"))
+                    .build();
+    public static final MultiblockRegistration<ITSteamTurbineLogic.State> STEAM_TURBINE =
+            ITRegistrationHolder.metal(new ITSteamTurbineLogic(), "steam_turbine")
+                    .structure(() -> ITRegistrationHolder.getMBTemplate.apply("steam_turbine"))
                     .build();
     public static final MultiblockRegistration<ITAdvancedCokeOvenLogic.State> ADV_COKE_OVEN =
             ITRegistrationHolder.stone(new ITAdvancedCokeOvenLogic(), "coke_oven_advanced", false)
