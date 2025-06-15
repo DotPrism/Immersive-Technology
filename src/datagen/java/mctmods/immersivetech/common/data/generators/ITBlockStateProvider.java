@@ -50,7 +50,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("all")
 public class ITBlockStateProvider extends BlockStateProvider
 {
-    protected static final List<Vec3i> COLUMN_THREE = ImmutableList.of(BlockPos.ZERO.north(), BlockPos.ZERO, BlockPos.ZERO.south());
+    protected static final List<Vec3i> COLUMN_THREE = ImmutableList.of(BlockPos.ZERO.north(1), BlockPos.ZERO, BlockPos.ZERO.south(1));
 
     public final Map<Block, ModelFile> unsplitModels = new HashMap<>();
     protected static final Map<ResourceLocation, String> generatedParticleTextures = new HashMap<>();
@@ -71,10 +71,10 @@ public class ITBlockStateProvider extends BlockStateProvider
         ITLib.IT_LOGGER.info("Generating Multiblock Splits");
         genericmultiblockMirror("boiler");
         genericmultiblockMirror("steam_turbine");
+        genericmultiblockMirror("gas_turbine");
         genericmultiblock("alternator");
         genericmultiblock("coke_oven_advanced");
         generateGenericBlock(ITRegistrationHolder.getBlock.apply("reinforced_coke_brick"), "reinforced_coke_brick", "reinforced_coke_brick");
-        //generateGenericBlock(ITBlocks.MetalDevices.COKE_OVEN_PREHEATER.defaultBlockState().getBlock(), "coke_oven_preheater", "coke_oven_preheater");
         createMultiblock(
                 ITBlocks.MetalDevices.COKE_OVEN_PREHEATER,
                 split(innerObj("block/coke_oven_preheater.obj"), COLUMN_THREE)

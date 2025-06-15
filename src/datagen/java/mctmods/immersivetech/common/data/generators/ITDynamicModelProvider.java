@@ -2,6 +2,8 @@ package mctmods.immersivetech.common.data.generators;
 
 import mctmods.immersivetech.client.renderer.AdvancedCokeOvenRenderer;
 import mctmods.immersivetech.client.renderer.CokeOvenPreheaterRenderer;
+import mctmods.immersivetech.client.renderer.GasTurbineRenderer;
+import mctmods.immersivetech.client.renderer.SteamTurbineRenderer;
 import mctmods.immersivetech.core.lib.ITLib;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -32,18 +34,50 @@ public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider
     {
         for(Entry<Block, ModelFile> multiblock : multiblocks.unsplitModels.entrySet())
             withExistingParent(BuiltInRegistries.BLOCK.getKey(multiblock.getKey()).getPath(), multiblock.getValue().getLocation());
-
-        //getBuilder(AdvancedCokeOvenRenderer.NAME)
-                //.customLoader(ObjModelBuilder::begin)
-                //.modelLocation(rl("models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced.obj"))
-                //.flipV(true)
-                //.end();
         getBuilder(CokeOvenPreheaterRenderer.NAME)
                 .customLoader(ObjModelBuilder::begin)
                 .modelLocation(rl("models/block/coke_oven_preheater.obj"))
                 .flipV(true)
                 .end();
+        getBuilder(SteamTurbineRenderer.NAME)
+                .customLoader(ObjModelBuilder::begin)
+                .modelLocation(rl("models/block/multiblock/obj/steam_turbine/steam_turbine_rotor.obj"))
+                .flipV(true)
+                .end();
 
+        getBuilder(SteamTurbineRenderer.NAME_EAST_WEST)
+                .customLoader(ObjModelBuilder::begin)
+                .modelLocation(rl("models/block/multiblock/obj/steam_turbine/steam_turbine_rotor_west_east.obj"))
+                .flipV(true)
+                .end();
+        getBuilder(GasTurbineRenderer.NAME)
+                .customLoader(ObjModelBuilder::begin)
+                .modelLocation(rl("models/block/multiblock/obj/gas_turbine/gas_turbine_rotor.obj"))
+                .flipV(true)
+                .end();
+
+        getBuilder(GasTurbineRenderer.NAME_EAST_WEST)
+                .customLoader(ObjModelBuilder::begin)
+                .modelLocation(rl("models/block/multiblock/obj/gas_turbine/gas_turbine_rotor_east_west.obj"))
+                .flipV(true)
+                .end();
+        /*
+        getBuilder(AdvancedCokeOvenRenderer.NAME_DOOR_LEFT)
+                .customLoader(ObjModelBuilder::begin)
+                .modelLocation(rl("models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced_door_left.obj"))
+                .flipV(true)
+                .end();
+        getBuilder(AdvancedCokeOvenRenderer.NAME_DOOR_MIDDLE)
+                .customLoader(ObjModelBuilder::begin)
+                .modelLocation(rl("models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced_door_middle.obj"))
+                .flipV(true)
+                .end();
+        getBuilder(AdvancedCokeOvenRenderer.NAME_DOOR_RIGHT)
+                .customLoader(ObjModelBuilder::begin)
+                .modelLocation(rl("models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced_door_right.obj"))
+                .flipV(true)
+                .end();
+        */
     }
 
     public static ResourceLocation rl(String path) {

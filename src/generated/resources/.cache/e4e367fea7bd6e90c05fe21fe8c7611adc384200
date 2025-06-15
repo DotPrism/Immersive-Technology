@@ -1,5 +1,7 @@
-// 1.20.1	2025-05-13T17:16:04.3273956	ITComplexItemModelProvider
+// 1.20.1	2025-05-31T14:53:48.2939405	ITComplexItemModelProvider
 636066905511fc620069394fa579b72beeea0b58 assets/immersivetech/models/item/alternator.json
 2bd8dc2a84e2939e2f75dc3365cb205e0ed22874 assets/immersivetech/models/item/boiler.json
 bbfda78b955806de19fb79642464c50a29ab7b62 assets/immersivetech/models/item/coke_oven_advanced.json
 910e7b90883129218a820e95825937e95b1f1f7e assets/immersivetech/models/item/coke_oven_preheater.json
+fb55825f518aa3676bb01db31ff648e77b16625f assets/immersivetech/models/item/gas_turbine.json
+e62aac222cb36062782173ec8a8447a8b49cd218 assets/immersivetech/models/item/steam_turbine.json

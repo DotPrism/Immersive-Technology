@@ -1,10 +1,7 @@
 package mctmods.immersivetech.core.registration;
 
 import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistration;
-import mctmods.immersivetech.common.blocks.multiblocks.logic.ITAdvancedCokeOvenLogic;
-import mctmods.immersivetech.common.blocks.multiblocks.logic.ITAlternatorLogic;
-import mctmods.immersivetech.common.blocks.multiblocks.logic.ITBoilerLogic;
-import mctmods.immersivetech.common.blocks.multiblocks.logic.ITSteamTurbineLogic;
+import mctmods.immersivetech.common.blocks.multiblocks.logic.*;
 
 public class ITMultiblockProvider
 {
@@ -15,14 +12,21 @@ public class ITMultiblockProvider
             ITRegistrationHolder.metal(new ITBoilerLogic(), "boiler")
             .structure(() -> ITRegistrationHolder.getMBTemplate.apply("boiler"))
             .gui(ITMenuTypes.BOILER_MENU)
+            .redstone(s -> s.rsState, ITBoilerLogic.REDSTONE_POS)
             .build();
     public static final MultiblockRegistration<ITAlternatorLogic.State> ALTERNATOR =
             ITRegistrationHolder.metal(new ITAlternatorLogic(), "alternator")
                     .structure(() -> ITRegistrationHolder.getMBTemplate.apply("alternator"))
                     .build();
-    public static final MultiblockRegistration<ITSteamTurbineLogic.State> STEAM_TURBINE =
+   public static final MultiblockRegistration<ITSteamTurbineLogic.State> STEAM_TURBINE =
             ITRegistrationHolder.metal(new ITSteamTurbineLogic(), "steam_turbine")
                     .structure(() -> ITRegistrationHolder.getMBTemplate.apply("steam_turbine"))
+                    .redstone(s -> s.rsState, ITSteamTurbineLogic.REDSTONE_POS)
+                    .build();
+    public static final MultiblockRegistration<ITGasTurbineLogic.State> GAS_TURBINE =
+            ITRegistrationHolder.metal(new ITGasTurbineLogic(), "gas_turbine")
+                    .structure(() -> ITRegistrationHolder.getMBTemplate.apply("gas_turbine"))
+                    .redstone(s -> s.rsState, ITGasTurbineLogic.REDSTONE_POS)
                     .build();
     public static final MultiblockRegistration<ITAdvancedCokeOvenLogic.State> ADV_COKE_OVEN =
             ITRegistrationHolder.stone(new ITAdvancedCokeOvenLogic(), "coke_oven_advanced", false)

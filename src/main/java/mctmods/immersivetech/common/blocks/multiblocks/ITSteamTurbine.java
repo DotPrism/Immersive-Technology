@@ -1,7 +1,6 @@
 package mctmods.immersivetech.common.blocks.multiblocks;
 
 import blusunrize.immersiveengineering.api.multiblocks.ClientMultiblocks;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistration;
 import mctmods.immersivetech.common.blocks.multiblocks.helper.ITClientMultiblockProperties;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.registration.ITMultiblockProvider;
@@ -19,7 +18,7 @@ public class ITSteamTurbine extends ITTemplateMultiblock
     public ITSteamTurbine()
     {
 
-        super(new ResourceLocation(ITLib.MODID, "multiblocks/steam_turbine"), new BlockPos(0,0,0), new BlockPos(1,1,9), new BlockPos(3,4,10), ITMultiblockProvider.STEAM_TURBINE);
+        super(new ResourceLocation(ITLib.MODID, "multiblocks/steam_turbine"), new BlockPos(1,1,0), new BlockPos(1,1,9), new BlockPos(3,4,10), ITMultiblockProvider.STEAM_TURBINE);
     }
 
     @Override
@@ -31,12 +30,12 @@ public class ITSteamTurbine extends ITTemplateMultiblock
     @Override
     public float getManualScale()
     {
-        return 20;
+        return 10;
     }
 
     @Override
     public void initializeClient(Consumer<ClientMultiblocks.MultiblockManualData> consumer)
     {
-        consumer.accept(new ITClientMultiblockProperties(this, 0, 0, 0));
+        consumer.accept(new ITClientMultiblockProperties(this, 1, 1, 0));
     }
 }

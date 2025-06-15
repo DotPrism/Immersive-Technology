@@ -39,6 +39,8 @@ public class ITComplexItemModelProvider extends ModelProvider<TRSRModelBuilder>
         generateMultiblockModel("boiler", ITMultiblockProvider.BOILER.block());
         generateMultiblockModel("alternator", ITMultiblockProvider.ALTERNATOR.block());
         generateMultiblockModel("coke_oven_advanced", ITMultiblockProvider.ADV_COKE_OVEN.block());
+        generateMultiblockModel("steam_turbine", ITMultiblockProvider.STEAM_TURBINE.block());
+        generateMultiblockModel("gas_turbine", ITMultiblockProvider.GAS_TURBINE.block());
         generateBlockModel("coke_oven_preheater", ITBlocks.MetalDevices.COKE_OVEN_PREHEATER);
     }
 

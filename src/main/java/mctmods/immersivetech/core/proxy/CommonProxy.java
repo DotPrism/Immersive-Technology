@@ -12,13 +12,9 @@ public class CommonProxy
 {
     public static void modConstruction(IEventBus event)
     {
-        ITLib.IT_LOGGER.info("Registering Multiblocks to Immersive Engineering");
-        ITMultiblockProvider.forceClassLoad();
-        ITRegistrationHolder.initialize();
-        ITTags.initialize();
-        ITRecipeTypes.init();
-        ITItems.init(event);
-        ITBlocks.init(event);
+        ITLib.IT_LOGGER.info("Registering IT Content!");
+
+        ITContent.initialize(event);
     }
 
     public void reinitializeGUI(){}

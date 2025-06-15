@@ -1,11 +1,11 @@
 package mctmods.immersivetech.core.registration;
 
 import blusunrize.immersiveengineering.api.crafting.IERecipeTypes.TypeWithClass;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.AdvancedCokeOvenFuel;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.AdvancedCokeOvenRecipe;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.BoilerRecipe;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.*;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.serializer.AdvancedCokeOvenRecipeSerializer;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.serializer.BoilerRecipeSerializer;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.serializer.GasTurbineRecipeSerializer;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.serializer.SteamTurbineRecipeSerializer;
 import mctmods.immersivetech.core.lib.ITLib;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
@@ -26,12 +26,16 @@ public class ITRecipeTypes
 
     public static final TypeWithClass<AdvancedCokeOvenRecipe> ADVANCED_COKE_OVEN = register("coke_oven_advanced", AdvancedCokeOvenRecipe.class);
     public static final TypeWithClass<BoilerRecipe> BOILER = register("boiler", BoilerRecipe.class);
+    public static final TypeWithClass<SteamTurbineRecipe> STEAM_TURBINE = register("steam_turbine", SteamTurbineRecipe.class);
+    public static final TypeWithClass<GasTurbineRecipe> GAS_TURBINE = register("gas_turbine", GasTurbineRecipe.class);
     public static final TypeWithClass<? extends Recipe<?>> ADV_COKE_OVEN_FUEL = register("coke_oven_advanced_fuel", AdvancedCokeOvenFuel.class);
 
     static
     {
         AdvancedCokeOvenRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("coke_oven_advanced", AdvancedCokeOvenRecipeSerializer::new);
         BoilerRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("boiler", BoilerRecipeSerializer::new);
+        SteamTurbineRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("steam_turbine", SteamTurbineRecipeSerializer::new);
+        GasTurbineRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("gas_turbine", GasTurbineRecipeSerializer::new);
     }
 
     private static <T extends Recipe<?>> TypeWithClass<T> register(String name, Class<T> type)

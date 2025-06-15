@@ -126,6 +126,7 @@ public class ITRegistrationHolder
         registerMB("boiler", ITBoiler.INSTANCE, ITMultiblockProvider.BOILER);
         registerMB("alternator", ITAlternator.INSTANCE, ITMultiblockProvider.ALTERNATOR);
         registerMB("steam_turbine", ITSteamTurbine.INSTANCE, ITMultiblockProvider.STEAM_TURBINE);
+        registerMB("gas_turbine", ITGasTurbine.INSTANCE, ITMultiblockProvider.GAS_TURBINE);
         registerMB("coke_oven_advanced", ITAdvancedCokeOven.INSTANCE, ITMultiblockProvider.ADV_COKE_OVEN);
     }
 

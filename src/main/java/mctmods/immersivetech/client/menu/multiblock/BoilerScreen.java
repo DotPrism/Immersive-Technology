@@ -30,14 +30,9 @@ public class BoilerScreen extends IEContainerScreen<BoilerMenu>
     protected List<InfoArea> makeInfoAreas()
     {
         return ImmutableList.of(
-                new FluidInfoArea(menu.tank.fuelInput(), new Rect2i(leftPos+13, topPos+20, 16, 47), 177, 31, 20, 51, TEXTURE),
-                new FluidInfoArea(menu.tank.waterInput(), new Rect2i(leftPos+100, topPos+20, 16, 47), 177, 31, 20, 51, TEXTURE),
-                new FluidInfoArea(menu.tank.output(), new Rect2i(leftPos+125, topPos+20, 16, 47), 177, 31, 20, 51, TEXTURE)
+                new FluidInfoArea(menu.tanks.fuelInput(), new Rect2i(leftPos+13, topPos+20, 16, 47), 177, 31, 20, 51, TEXTURE),
+                new FluidInfoArea(menu.tanks.waterInput(), new Rect2i(leftPos+100, topPos+20, 16, 47), 177, 31, 20, 51, TEXTURE),
+                new FluidInfoArea(menu.tanks.output(), new Rect2i(leftPos+125, topPos+20, 16, 47), 177, 31, 20, 51, TEXTURE)
         );
-    }
-
-    @Override
-    protected void drawContainerBackgroundPre(@Nonnull GuiGraphics graphics, float f, int mx, int my)
-    {
     }
 }

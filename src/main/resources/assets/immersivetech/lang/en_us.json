@@ -4,8 +4,15 @@
   "language.region": "United States",
 
   "manual.immersivetech.main": "Immersive Technology",
+  "manual.immersivetech.it_multiblocks": "Multiblocks",
 
   "block.immersivetech.coke_oven_advanced": "Advanced Coke Oven",
   "block.immersivetech.boiler": "Boiler",
-  "block.immersivetech.alternator": "Alternator"
+  "block.immersivetech.alternator": "Alternator",
+  "block.immersivetech.steam_turbine": "Steam Turbine",
+  "block.immersivetech.gas_turbine": "Gas Turbine",
+
+  "fluid_type.immersivetech.steam": "Low Pressure Steam",
+
+  "item.immersivetech.steam_bucket": "Steam Bucket"
 }

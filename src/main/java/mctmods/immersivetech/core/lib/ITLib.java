@@ -3,6 +3,8 @@ package mctmods.immersivetech.core.lib;
 import com.igteam.immersivegeology.core.lib.IGLib;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 public class ITLib
@@ -28,17 +30,7 @@ public class ITLib
         return rl("textures/gui/" + name + ".png");
     }
 
-    public static double normalize(int val)
-    {
-        return val / 16;
-    }
-
-    public static double unnormalize(double val)
-    {
-        return val * 16;
-    }
-
-    public static ResourceLocation rl(String name)
+    public static  ResourceLocation rl(String name)
     {
         return new ResourceLocation(ITLib.MODID, name);
     }

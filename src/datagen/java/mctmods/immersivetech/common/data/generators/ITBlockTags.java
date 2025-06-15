@@ -26,10 +26,18 @@ public class ITBlockTags extends BlockTagsProvider
         ITLib.IT_LOGGER.info("IT Block Tags");
 
         IntrinsicHolderTagsProvider.IntrinsicTagAppender<Block> tag = this.tag(BlockTags.MINEABLE_WITH_PICKAXE);
+        IntrinsicHolderTagsProvider.IntrinsicTagAppender<Block> tag2 = this.tag(BlockTags.NEEDS_IRON_TOOL);
 
         registerMineable(tag, ITMultiblockProvider.ADV_COKE_OVEN);
         registerMineable(tag, ITMultiblockProvider.BOILER);
         registerMineable(tag, ITMultiblockProvider.ALTERNATOR);
+        registerMineable(tag, ITMultiblockProvider.STEAM_TURBINE);
+        registerMineable(tag, ITMultiblockProvider.GAS_TURBINE);
+        registerMineable(tag2, ITMultiblockProvider.ADV_COKE_OVEN);
+        registerMineable(tag2, ITMultiblockProvider.BOILER);
+        registerMineable(tag2, ITMultiblockProvider.ALTERNATOR);
+        registerMineable(tag2, ITMultiblockProvider.STEAM_TURBINE);
+        registerMineable(tag2, ITMultiblockProvider.GAS_TURBINE);
     }
 
     private void registerMineable(IntrinsicHolderTagsProvider.IntrinsicTagAppender<Block> tag, MultiblockRegistration<?>... entries) {

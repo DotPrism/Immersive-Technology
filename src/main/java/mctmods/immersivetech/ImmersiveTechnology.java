@@ -1,5 +1,6 @@
 package mctmods.immersivetech;
 
+import blusunrize.immersiveengineering.common.register.IEFluids;
 import mctmods.immersivetech.client.ITClientRenderHandler;
 import mctmods.immersivetech.core.ITConfig;
 import mctmods.immersivetech.core.lib.ITLib;
@@ -10,6 +11,7 @@ import mctmods.immersivetech.core.registration.ITRecipeSerializers;
 import mctmods.immersivetech.core.registration.ITRegistrationHolder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -21,6 +23,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
 
+import static blusunrize.immersiveengineering.common.fluids.IEFluid.BUCKET_DISPENSE_BEHAVIOR;
 import static mctmods.immersivetech.core.lib.ITLib.MODID;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -52,6 +55,9 @@ public class ImmersiveTechnology
     {
         // Some common setup code
         ITLib.IT_LOGGER.info("HELLO FROM COMMON SETUP");
+
+        for(IEFluids.FluidEntry entry : IEFluids.ALL_ENTRIES)
+            DispenserBlock.registerBehavior(entry.getBucket(), BUCKET_DISPENSE_BEHAVIOR);
 
         //ITConfig.items.forEach((item) -> ITLib.IT_LOGGER.info("ITEM >> {}", item.toString()));
     }

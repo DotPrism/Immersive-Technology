@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.model.data.ModelData;
@@ -22,6 +23,7 @@ import java.util.List;
 public class ITDynamicModel
 {
     private static final List<ResourceLocation> MODELS = new ArrayList<>();
+    public static final RandomSource RANDOM_SOURCE = RandomSource.createNewThreadLocalInstance();
 
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterAdditional ev)
@@ -52,7 +54,7 @@ public class ITDynamicModel
 
     public List<BakedQuad> getNullQuads(ModelData data)
     {
-        return get().getQuads(null, null, ApiUtils.RANDOM_SOURCE, data, null);
+        return get().getQuads(null, null, RANDOM_SOURCE, data, null);
     }
 
     public ResourceLocation getName()

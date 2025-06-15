@@ -13,6 +13,7 @@ import blusunrize.immersiveengineering.common.gui.sync.GetterAndSetter;
 import blusunrize.immersiveengineering.common.util.DroppingMultiblockOutput;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.inventory.WrappingItemHandler;
+import blusunrize.immersiveengineering.common.util.sound.MultiblockSound;
 import com.igteam.immersivegeology.common.block.multiblocks.logic.CrystallizerLogic;
 import mctmods.immersivetech.common.blocks.CokeOvenPreheaterBlockEntity;
 import mctmods.immersivetech.common.blocks.multiblocks.helper.ITFurnaceHandler;
@@ -35,6 +36,7 @@ import blusunrize.immersiveengineering.common.util.inventory.SlotwiseItemHandler
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.registration.ITMultiblockProvider;
 import mctmods.immersivetech.core.registration.ITRegistrationHolder;
+import mctmods.immersivetech.core.registration.ITSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -63,11 +65,12 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("all")
 public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeOvenLogic.State>,
@@ -169,18 +172,14 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         ))
             context.markMasterDirty();
 
-        if(active&&ApiUtils.RANDOM.nextInt(24)==0)
+        final IItemHandlerModifiable inventory = state.getInventory();
+        ItemStack stack = inventory.getStackInSlot(2);
+        if(!stack.isEmpty())
         {
-            final IMultiblockLevel level = context.getLevel();
-            final Level rawLevel = level.getRawLevel();
-            final Vec3 soundPos = level.toAbsolute(new Vec3(1.5, 1.5, 1.5));
-            rawLevel.playSound(
-                    null,
-                    soundPos.x, soundPos.y, soundPos.z,
-                    SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS,
-                    0.5F+ApiUtils.RANDOM.nextFloat()*0.5F, ApiUtils.RANDOM.nextFloat()*0.7F+0.3F
-            );
+            stack = Utils.insertStackIntoInventory(state.outputRef, stack, false);
+            inventory.setStackInSlot(2, stack);
         }
+
         if(activeBeforeTick!=active)
             NonMirrorableWithActiveBlock.setActive(context.getLevel(), ITRegistrationHolder.getMBTemplate.apply("coke_oven_advanced"), active);
     }
@@ -263,9 +262,11 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
     }
 
     @Override
-    public void tickClient(IMultiblockContext<State> iMultiblockContext)
+    public void tickClient(IMultiblockContext<State> ctx)
     {
-        final IMultiblockLevel level = iMultiblockContext.getLevel();
+        final State state = ctx.getState();
+
+        final IMultiblockLevel level = ctx.getLevel();
         if(isActive(level))
         {
             final Vec3 particlePos = level.toAbsolute(SMOKE_POS);
@@ -273,6 +274,14 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
                     ParticleTypes.CAMPFIRE_COSY_SMOKE,
                     particlePos.x, particlePos.y, particlePos.z,
                     ApiUtils.RANDOM.nextDouble(-0.00625, 0.00625), .05, ApiUtils.RANDOM.nextDouble(-0.00625, 0.00625)
+            );
+        }
+
+        if(!state.isSoundPlaying.getAsBoolean())
+        {
+            final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(1.5, 1.5, 1.5));
+            state.isSoundPlaying = MultiblockSound.startSound(
+                    () -> isActive(level), ctx.isValid(), soundPos, ITSounds.advCokeOven, 1f
             );
         }
     }
@@ -289,6 +298,8 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         public static final int BURN_TIME = 1;
         public static final int NUM_SLOTS = 2;
 
+        private BooleanSupplier isSoundPlaying = () -> false;
+
         private final StoredCapability<IItemHandler> itemOutputCap;
 
         private final FluidTank tank = new FluidTank(TANK_CAPACITY);
@@ -302,18 +313,11 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         private final StoredCapability<IFluidHandler> fluidCap;
 
         private final CapabilityReference<IFluidHandler> fluidOutput;
-        private final CapabilityReference<IItemHandler> itemOutput;
-        private final DroppingMultiblockOutput output;
-
-        @Override
-        public void doProcessOutput(ItemStack result, IMultiblockLevel level)
-        {
-            output.insertOrDrop(result, level);
-        }
+        private final CapabilityReference<IItemHandler> outputRef;
 
         public State(IInitialMultiblockContext<ITAdvancedCokeOvenLogic.State> ctx)
         {
-            final Supplier<@org.jetbrains.annotations.Nullable Level> levelGetter = ctx.levelSupplier();
+            final Supplier<@Nullable Level> levelGetter = ctx.levelSupplier();
             inventory = new SlotwiseItemHandler(
                     List.of(
                             IOConstraint.input(i -> CokeOvenRecipe.findRecipe(levelGetter.get(), i)!=null),
@@ -334,8 +338,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
                     inventory, false, true, new WrappingItemHandler.IntRange(0, 1)
             ));
             this.fluidOutput = ctx.getCapabilityAt(ForgeCapabilities.FLUID_HANDLER, new MultiblockFace(FLUID_OUTPUT_CAP.side(), FLUID_OUTPUT_CAP.posInMultiblock().north()));
-            this.itemOutput = ctx.getCapabilityAt(ForgeCapabilities.ITEM_HANDLER, new MultiblockFace(ITEM_OUTPUT_CAP.side(), ITEM_OUTPUT_CAP.posInMultiblock().south()));
-            this.output = new DroppingMultiblockOutput(OUTPUT_POS, ctx);
+            this.outputRef = ctx.getCapabilityAt(ForgeCapabilities.ITEM_HANDLER, OUTPUT_POS);
         }
 
         @Override
@@ -404,7 +407,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
             return null;
         }
 
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         @Override
         public IESerializableRecipe getRecipeForInput(int furnaceIndex) {
             return null;
@@ -441,7 +444,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
             }
         }
 
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         public CokeOvenPreheaterBlockEntity getPreheater(IMultiblockLevel level, BlockPos pos)
         {
             BlockEntity te = level.getBlockEntity(pos);

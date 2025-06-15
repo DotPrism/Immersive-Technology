@@ -32,6 +32,8 @@ public class ITContent
         multiblockEntry(instance, multiblock_category, "boiler");
         multiblockEntry(instance, multiblock_category, "alternator");
         multiblockEntry(instance, multiblock_category, "coke_oven_advanced");
+        multiblockEntry(instance, multiblock_category, "steam_turbine");
+        multiblockEntry(instance, multiblock_category, "gas_turbine");
     }
 
     private static void multiblockEntry(ManualInstance instance, InnerNode<ResourceLocation, ManualEntry> category, String id)
@@ -47,8 +49,21 @@ public class ITContent
         MenuScreens.register(ITMenuTypes.BOILER_MENU.getType(), BoilerScreen::new);
     }
 
-    public static void initialize(ParallelDispatchEvent event)
+    private static void fluidInit(IEventBus event)
     {
-        //ITMultiblocks.init();
+        ITFluids.REGISTER.register(event);
+        ITFluids.TYPE_REGISTER.register(event);
+    }
+
+    public static void initialize(IEventBus event)
+    {
+        ITMultiblockProvider.forceClassLoad();
+        ITRegistrationHolder.initialize();
+        ITTags.initialize();
+        ITRecipeTypes.init();
+        fluidInit(event);
+        ITItems.init(event);
+        ITBlocks.init(event);
+        ITSounds.init(event);
     }
 }

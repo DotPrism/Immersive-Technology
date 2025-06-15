@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.function.Consumer;
 
+@SuppressWarnings("all")
 public class ITAlternator extends ITTemplateMultiblock
 {
     public static final ITAlternator INSTANCE = new ITAlternator();

@@ -1,0 +1,5 @@
+{
+  "parent": "forge:item/bucket",
+  "fluid": "immersivetech:steam",
+  "loader": "forge:fluid_container"
+}

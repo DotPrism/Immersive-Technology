@@ -5,7 +5,10 @@ import blusunrize.immersiveengineering.client.gui.IEContainerScreen;
 import mctmods.immersivetech.client.models.ITDynamicModel;
 import mctmods.immersivetech.client.renderer.AdvancedCokeOvenRenderer;
 import mctmods.immersivetech.client.renderer.CokeOvenPreheaterRenderer;
+import mctmods.immersivetech.client.renderer.GasTurbineRenderer;
+import mctmods.immersivetech.client.renderer.SteamTurbineRenderer;
 import mctmods.immersivetech.core.lib.ITLib;
+import mctmods.immersivetech.core.registration.ITMultiblockProvider;
 import mctmods.immersivetech.core.registration.ITRegistrationHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -27,7 +30,6 @@ import java.util.function.Supplier;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = ITLib.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientProxy extends CommonProxy
 {
-
     @Override
     public void reinitializeGUI()
     {
@@ -51,8 +53,14 @@ public class ClientProxy extends CommonProxy
     @SubscribeEvent
     public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders ev)
     {
+        //AdvancedCokeOvenRenderer.MODEL_LEFT = new ITDynamicModel(AdvancedCokeOvenRenderer.NAME_DOOR_LEFT);
+        //AdvancedCokeOvenRenderer.MODEL_MIDDLE = new ITDynamicModel(AdvancedCokeOvenRenderer.NAME_DOOR_MIDDLE);
+        //AdvancedCokeOvenRenderer.MODEL_RIGHT = new ITDynamicModel(AdvancedCokeOvenRenderer.NAME_DOOR_RIGHT);
         CokeOvenPreheaterRenderer.MODEL = new ITDynamicModel(CokeOvenPreheaterRenderer.NAME);
-        //AdvancedCokeOvenRenderer.DRUM = new ITDynamicModel(AdvancedCokeOvenRenderer.NAME);
+        SteamTurbineRenderer.MODEL = new ITDynamicModel(SteamTurbineRenderer.NAME);
+        SteamTurbineRenderer.MODEL_EAST_WEST = new ITDynamicModel(SteamTurbineRenderer.NAME_EAST_WEST);
+        GasTurbineRenderer.MODEL = new ITDynamicModel(GasTurbineRenderer.NAME);
+        GasTurbineRenderer.MODEL_EAST_WEST = new ITDynamicModel(GasTurbineRenderer.NAME_EAST_WEST);
     }
 
     @SubscribeEvent
@@ -85,5 +93,8 @@ public class ClientProxy extends CommonProxy
     public static void registerBERenders(EntityRenderersEvent.RegisterRenderers event)
     {
         registerBERenderNoContext(event, ITRegistrationHolder.COKEOVEN_PREHEATER.master(), CokeOvenPreheaterRenderer::new);
+        registerBERenderNoContext(event, ITMultiblockProvider.STEAM_TURBINE.masterBE(), SteamTurbineRenderer::new);
+        registerBERenderNoContext(event, ITMultiblockProvider.GAS_TURBINE.masterBE(), GasTurbineRenderer::new);
+        //registerBERenderNoContext(event, ITMultiblockProvider.ADV_COKE_OVEN.masterBE(), AdvancedCokeOvenRenderer::new);
     }
 }

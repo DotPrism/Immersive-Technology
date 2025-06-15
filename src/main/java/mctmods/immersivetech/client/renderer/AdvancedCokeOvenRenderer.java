@@ -25,9 +25,13 @@ import java.util.List;
 
 public class AdvancedCokeOvenRenderer extends ITBlockEntityRenderer<MultiblockBlockEntityMaster<ITAdvancedCokeOvenLogic.State>>
 {
-    public static final String NAME = "coke_oven_advanced";
+    public static final String NAME_DOOR_LEFT = "coke_oven_advanced_door_left";
+    public static final String NAME_DOOR_MIDDLE = "coke_oven_advanced_door_middle";
+    public static final String NAME_DOOR_RIGHT = "coke_oven_advanced_door_right";
 
-    public static ITDynamicModel DRUM;
+    public static ITDynamicModel MODEL_LEFT;
+    public static ITDynamicModel MODEL_MIDDLE;
+    public static ITDynamicModel MODEL_RIGHT;
 
     @Override
     public void render(MultiblockBlockEntityMaster<ITAdvancedCokeOvenLogic.State> tile, float pPartialTick, PoseStack poseStack, @NotNull MultiBufferSource buffer, int pPackedLight, int pPackedOverlay)
@@ -44,7 +48,9 @@ public class AdvancedCokeOvenRenderer extends ITBlockEntityRenderer<MultiblockBl
             rotateForFacing(poseStack, dir);
             poseStack.pushPose();
             {
-                renderDynamicModel(DRUM, poseStack, buffer, dir, level, pos, pPackedLight, pPackedOverlay);
+                renderDynamicModel(MODEL_LEFT, poseStack, buffer, dir, level, pos, pPackedLight, pPackedOverlay);
+                renderDynamicModel(MODEL_MIDDLE, poseStack, buffer, dir, level, pos, pPackedLight, pPackedOverlay);
+                renderDynamicModel(MODEL_RIGHT, poseStack, buffer, dir, level, pos, pPackedLight, pPackedOverlay);
             }
             poseStack.popPose();
         }
@@ -56,6 +62,5 @@ public class AdvancedCokeOvenRenderer extends ITBlockEntityRenderer<MultiblockBl
         List<BakedQuad> quads = model.get().getQuads(null, null, ApiUtils.RANDOM_SOURCE, ModelData.EMPTY, null);
         RenderUtils.renderModelTESRFancy(quads, buffer.getBuffer(RenderType.cutout()), matrix, level, pos, false, 0xffffff, light);
         matrix.popPose();
-
     }
 }

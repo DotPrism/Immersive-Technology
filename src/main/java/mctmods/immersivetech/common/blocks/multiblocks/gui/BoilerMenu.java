@@ -22,15 +22,13 @@ import javax.annotation.Nonnull;
 
 public class BoilerMenu extends IEContainerMenu
 {
-    public final ITBoilerLogic.BoilerTank tank;
-
     public static BoilerMenu makeServer(
             MenuType<?> type, int id, Inventory invPlayer, MultiblockMenuContext<ITBoilerLogic.State> ctx
     )
     {
         final ITBoilerLogic.State state = ctx.mbContext().getState();
         return new BoilerMenu(
-                multiblockCtx(type, id, ctx), invPlayer, state.getInventory().getRawHandler(), state, state.getTanks()
+                multiblockCtx(type, id, ctx), invPlayer, state.getInventory().getRawHandler(), state.getTanks()
         );
     }
 
@@ -40,30 +38,28 @@ public class BoilerMenu extends IEContainerMenu
                 clientCtx(type, id),
                 invPlayer,
                 new ItemStackHandler(ITBoilerLogic.NUM_SLOTS),
-                new SimpleContainerData(FurnaceHandler.StateView.NUM_SLOTS),
                 new ITBoilerLogic.BoilerTank());
     }
 
-    protected BoilerMenu(MenuContext ctx, Inventory inventoryPlayer, IItemHandler inv, ContainerData data, ITBoilerLogic.BoilerTank tank) {
-        super(ctx);
-        this.addSlot(new IESlot.NewOutput(inv, 0, 37, 54));
-        this.addSlot(new IESlot.NewFluidContainer(inv, 1, 37, 15, IESlot.NewFluidContainer.Filter.ANY));
-        this.addSlot(new IESlot.NewOutput(inv, 2, 76, 54));
-        this.addSlot(new IESlot.NewFluidContainer(inv, 3, 76, 15, IESlot.NewFluidContainer.Filter.ANY));
-        this.addSlot(new IESlot.NewOutput(inv, 4, 149, 54));
-        this.addSlot(new IESlot.NewFluidContainer(inv, 5, 149, 15, IESlot.NewFluidContainer.Filter.ANY));
+    public final ITBoilerLogic.BoilerTank tanks;
 
-        ownSlotCount = 6;
+    protected BoilerMenu(MenuContext ctx, Inventory inventoryPlayer, IItemHandler inv, ITBoilerLogic.BoilerTank tanks) {
+        super(ctx);
+        this.tanks = tanks;
+        this.addSlot(new IESlot.NewFluidContainer(inv, ownSlotCount++, 37, 15, IESlot.NewFluidContainer.Filter.ANY));
+        this.addSlot(new IESlot.NewOutput(inv, ownSlotCount++, 37, 54));
+        this.addSlot(new IESlot.NewFluidContainer(inv, ownSlotCount++, 76, 15, IESlot.NewFluidContainer.Filter.ANY));
+        this.addSlot(new IESlot.NewOutput(inv, ownSlotCount++, 76, 54));
+        this.addSlot(new IESlot.NewFluidContainer(inv, ownSlotCount++, 149, 15, IESlot.NewFluidContainer.Filter.ANY));
+        this.addSlot(new IESlot.NewOutput(inv, ownSlotCount++, 149, 54));
 
         for(int i = 0; i < 3; i++)
             for(int j = 0; j < 9; j++)
                 addSlot(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 84+i*18));
         for(int i = 0; i < 9; i++)
             addSlot(new Slot(inventoryPlayer, i, 8+i*18, 142));
-
-        this.tank = tank;
-        addGenericData(GenericContainerData.fluid(tank.fuelInput()));
-        addGenericData(GenericContainerData.fluid(tank.waterInput()));
-        addGenericData(GenericContainerData.fluid(tank.output()));
+        addGenericData(GenericContainerData.fluid(tanks.fuelInput()));
+        addGenericData(GenericContainerData.fluid(tanks.waterInput()));
+        addGenericData(GenericContainerData.fluid(tanks.output()));
     }
 }

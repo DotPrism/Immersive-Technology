@@ -1,15 +1,24 @@
 package mctmods.immersivetech.common.data.generators;
 
 import blusunrize.immersiveengineering.api.IETags;
+import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
+import blusunrize.immersiveengineering.common.register.IEFluids;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.AdvancedCokeOvenRecipeBuilder;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.BoilerRecipeBuilder;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.GasTurbineRecipeBuilder;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.SteamTurbineRecipeBuilder;
 import mctmods.immersivetech.core.lib.ITLib;
+import mctmods.immersivetech.core.registration.ITFluids;
+import mctmods.immersivetech.core.registration.ITTags;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +41,8 @@ public class ITRecipes extends RecipeProvider
         multiblockRecipes(consumer);
         itemRecipes(consumer);
         recipesCoke(consumer);
+        recipesBoiler(consumer);
+        recipesTurbine(consumer);
     }
 
     private void itemRecipes(Consumer<FinishedRecipe> consumer)
@@ -42,6 +53,34 @@ public class ITRecipes extends RecipeProvider
     private void multiblockRecipes(Consumer<FinishedRecipe> consumer)
     {
         ITLib.IT_LOGGER.info("Starting Multiblock Recipe Registration");
+    }
+
+    private void recipesBoiler(@Nonnull Consumer<FinishedRecipe> out)
+    {
+        BoilerRecipeBuilder.builder(ITFluids.STEAM.getStill(), 100)
+                .addInput(new FluidTagInput(FluidTags.WATER, 95), "input1")
+                .addInput(new FluidTagInput(IETags.fluidBiodiesel, 50), "input0")
+                .setTime(75)
+                .setHeatPerTick(3)
+                .build(out, toRL("boiler/biodiesel"));
+        BoilerRecipeBuilder.builder(ITFluids.STEAM.getStill(), 100)
+                .addInput(new FluidTagInput(FluidTags.WATER, 95), "input1")
+                .addInput(new FluidTagInput(IETags.fluidCreosote, 50), "input0")
+                .setTime(25)
+                .setHeatPerTick(3)
+                .build(out, toRL("boiler/creosote"));
+    }
+
+    private void recipesTurbine(@Nonnull Consumer<FinishedRecipe> out)
+    {
+        SteamTurbineRecipeBuilder.builder(ITTags.fluidSteam, 25)
+                .build(out, toRL("steamturbine/steam"));
+        SteamTurbineRecipeBuilder.builder(ITTags.fluidSteamForge, 25)
+                .build(out, toRL("steamturbine/steam_forge"));
+        GasTurbineRecipeBuilder.builder(IETags.fluidBiodiesel, 25)
+                .build(out, toRL("gas_turbine/biodiesel"));
+        GasTurbineRecipeBuilder.builder(IETags.fluidCreosote, 10)
+                .build(out, toRL("gas_turbine/creosote"));
     }
 
     private void recipesCoke(@Nonnull Consumer<FinishedRecipe> out)
