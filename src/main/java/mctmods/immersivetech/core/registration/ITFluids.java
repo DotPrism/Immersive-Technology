@@ -53,6 +53,14 @@ public class ITFluids
             "steam", rl("block/fluid/steam_still"), rl("block/fluid/steam_flow")
     );
 
+    public static final ITFluids.FluidEntry STEAM_EXHAUST = FluidEntry.make(
+            "steam_exhaust", rl("block/fluid/steam_still"), rl("block/fluid/steam_flow")
+    );
+
+    public static final ITFluids.FluidEntry FLUE_GAS = FluidEntry.make(
+            "flue_gas", rl("block/fluid/flue_gas"), rl("block/fluid/flue_gas")
+    );
+
     public record FluidEntry(
             RegistryObject<ITFluid> flowing,
             RegistryObject<ITFluid> still,

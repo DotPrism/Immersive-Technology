@@ -15,6 +15,9 @@ import blusunrize.immersiveengineering.common.util.CachedRecipe;
 import blusunrize.immersiveengineering.common.util.sound.MultiblockSound;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.SteamTurbineRecipe;
 import mctmods.immersivetech.common.blocks.multiblocks.shapes.FullblockShape;
+import mctmods.immersivetech.core.lib.ITLib;
+import mctmods.immersivetech.core.lib.ITMultiblockSound;
+import mctmods.immersivetech.core.registration.ITFluids;
 import mctmods.immersivetech.core.registration.ITSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +34,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -39,6 +43,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
 {
     private static final BlockPos MASTER_POS = new BlockPos(1, 1, 0);
     private static final List<BlockPos> FLUID_POS = List.of(new BlockPos(2, 1, 9), new BlockPos(1, 0, 1));
+    private static final List<BlockPos> FLUID_POS2 = List.of(new BlockPos(1, 0, 1));
     public static final BlockPos REDSTONE_POS = new BlockPos(0, 1, 9);
 
     public static final int TANK_CAPACITY = 12* FluidType.BUCKET_VOLUME;
@@ -47,6 +52,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
     public void tickClient(IMultiblockContext<State> ctx)
     {
         final State state = ctx.getState();
+        float level = ITLib.remapRange(0, state.maxSpeed, 0.5f, 1.5f, state.speed);
 
         if(state.active||state.animation_fanFadeIn > 0||state.animation_fanFadeOut > 0)
         {
@@ -70,8 +76,8 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         if(!state.isSoundPlaying.getAsBoolean())
         {
             final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(2.5, 1.5, 1.5));
-            state.isSoundPlaying = MultiblockSound.startSound(
-                    () -> state.active, ctx.isValid(), soundPos, ITSounds.steamTurbine, 1f
+            state.isSoundPlaying = ITMultiblockSound.startSound(
+                    () -> state.active, ctx.isValid(), soundPos, ITSounds.steamTurbine, 1f, level
             );
         }
     }
@@ -131,8 +137,9 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         {
             if(position.side()==null||(position.side()==RelativeBlockFace.BACK&&FLUID_POS.contains(position.posInMultiblock())))
                 return ctx.getState().fluidCap.cast(ctx);
-            else if(position.side()==null||(position.side()==RelativeBlockFace.FRONT&&FLUID_POS.contains(position.posInMultiblock())))
+            else if(position.side()==null||(position.side()==RelativeBlockFace.FRONT&&FLUID_POS2.contains(position.posInMultiblock())))
                 return ctx.getState().fluidCapExhaust.cast(ctx);
+
         }
 
         return LazyOptional.empty();
@@ -198,7 +205,10 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
 
         public State()
         {
-
+            Set<Fluid> allowedFuels = Set.of(ITFluids.STEAM.getStill());
+            Set<Fluid> exhaustSteam = Set.of(ITFluids.STEAM_EXHAUST.getStill());
+            this.tanks.steam.setValidator(f -> allowedFuels.contains(f.getFluid()));
+            this.tanks.exhaust_steam.setValidator(f -> exhaustSteam.contains(f.getFluid()));
         }
 
         @Override

@@ -34,4 +34,6 @@ public class ITLib
     {
         return new ResourceLocation(ITLib.MODID, name);
     }
+
+    public static float remapRange(float inMin, float inMax, float outMin, float outMax, float value) { return outMin + ((value-inMin)/inMax) * (outMax - outMin); }
 }
