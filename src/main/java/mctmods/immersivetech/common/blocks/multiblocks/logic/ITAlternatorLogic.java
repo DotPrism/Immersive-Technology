@@ -140,7 +140,7 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
         if(cap==ForgeCapabilities.ENERGY)
         {
             if(position.side()==null||(
-                    position.side()==RelativeBlockFace.RIGHT&&ENERGY_OUTPUTS_RIGHT.contains(position.posInMultiblock()))
+                    position.side()==RelativeBlockFace.RIGHT&&ENERGY_OUTPUTS_RIGHT.contains(position.posInMultiblock())))
             {
                 return ctx.getState().energyCap.cast(ctx);
             }
