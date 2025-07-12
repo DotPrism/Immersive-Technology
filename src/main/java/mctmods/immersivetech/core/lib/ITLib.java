@@ -30,8 +30,6 @@ public class ITLib
         return rl("textures/gui/" + name + ".png");
     }
 
-    public static float remapRange(float inMin, float inMax, float outMin, float outMax, float value) { return outMin + ((value-inMin)/inMax) * (outMax - outMin); }
-
     public static  ResourceLocation rl(String name)
     {
         return new ResourceLocation(ITLib.MODID, name);

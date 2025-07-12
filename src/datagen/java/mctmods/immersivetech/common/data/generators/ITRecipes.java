@@ -77,9 +77,9 @@ public class ITRecipes extends RecipeProvider
                 .build(out, toRL("steamturbine/steam"));
         SteamTurbineRecipeBuilder.builder(ITTags.fluidSteamForge, 25)
                 .build(out, toRL("steamturbine/steam_forge"));
-        GasTurbineRecipeBuilder.builder(IETags.fluidBiodiesel, ITTags.fluidFlueGas, 25)
+        GasTurbineRecipeBuilder.builder(IETags.fluidBiodiesel, 25)
                 .build(out, toRL("gas_turbine/biodiesel"));
-        GasTurbineRecipeBuilder.builder(IETags.fluidCreosote, ITTags.fluidFlueGas, 25)
+        GasTurbineRecipeBuilder.builder(IETags.fluidCreosote, 10)
                 .build(out, toRL("gas_turbine/creosote"));
     }
 
