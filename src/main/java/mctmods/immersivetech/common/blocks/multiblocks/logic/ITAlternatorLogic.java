@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 
 public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.State>, IServerTickableComponent<ITAlternatorLogic.State>, IClientTickableComponent<ITAlternatorLogic.State>
 {
-    private static final List<BlockPos> ENERGY_OUTPUTS_LEFT = List.of(new BlockPos(-1, 0, 3), new BlockPos(-1, 1, 3), new BlockPos(-1, 2, 3));
-    private static final List<BlockPos> ENERGY_OUTPUTS_RIGHT = List.of(new BlockPos(3, 0, 3), new BlockPos(3, 1, 3), new BlockPos(3, 2, 3));
+    private static final List<BlockPos> ENERGY_OUTPUTS_RIGHT = List.of(new BlockPos(-1, 0, 3), new BlockPos(-1, 1, 3), new BlockPos(-1, 2, 3));
+    private static final List<BlockPos> ENERGY_OUTPUTS_LEFT = List.of(new BlockPos(3, 0, 3), new BlockPos(3, 1, 3), new BlockPos(3, 2, 3));
 
     public static final int ENERGY_CAPACITY = 1200000;
     public static final BlockPos MASTER_OFFSET = new BlockPos(0,0,0);
@@ -140,9 +140,12 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
         if(cap==ForgeCapabilities.ENERGY)
         {
             if(position.side()==null||(
-                    position.side()==RelativeBlockFace.RIGHT&&ENERGY_OUTPUTS_LEFT.contains(position.posInMultiblock()))||(
-                    position.side()==RelativeBlockFace.LEFT&&ENERGY_OUTPUTS_RIGHT.contains(position.posInMultiblock()
-                    )))
+                    position.side()==RelativeBlockFace.RIGHT&&ENERGY_OUTPUTS_RIGHT.contains(position.posInMultiblock()))
+            {
+                return ctx.getState().energyCap.cast(ctx);
+            }
+            if((position.side()==RelativeBlockFace.LEFT&&ENERGY_OUTPUTS_LEFT.contains(position.posInMultiblock()
+            )))
             {
                 return ctx.getState().energyCap.cast(ctx);
             }
