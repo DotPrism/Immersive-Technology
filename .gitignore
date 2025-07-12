@@ -11,16 +11,18 @@ out
 *.ipr
 *.iws
 *.iml
+.idea
 .idea/*
+/.idea/
 !.idea/codeStyles
 !.idea/copyright
 classes
-/.idea/*
 
 # gradle
 build
 .gradle
-/.gradle/*
+.gradle/*
+/.gradle/
 
 # other
 eclipse
