@@ -13,8 +13,6 @@
   "block.immersivetech.gas_turbine": "Gas Turbine",
 
   "fluid_type.immersivetech.steam": "Low Pressure Steam",
-  "fluid_type.immersivetech.steam_exhaust": "Exhaust Steam",
 
-  "item.immersivetech.steam_bucket": "Steam Bucket",
-  "item.immersivetech.steam_exhaust_bucket": "Exhaust Steam Bucket"
+  "item.immersivetech.steam_bucket": "Steam Bucket"
 }

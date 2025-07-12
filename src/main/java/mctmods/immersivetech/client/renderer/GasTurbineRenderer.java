@@ -46,7 +46,7 @@ public class GasTurbineRenderer extends ITBlockEntityRenderer<MultiblockBlockEnt
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.mulPose(new Quaternionf().rotateAxis(
-                    (state.rotationSpeed+(state.rotationSpeed*partialTicks))* Mth.DEG_TO_RAD,
+                    (state.animation_fanRotation+(state.animation_fanRotationStep*partialTicks))* Mth.DEG_TO_RAD,
                     Vec3.atLowerCornerOf(dir.getNormal()).toVector3f()
             ));
             if (dir==Direction.EAST||dir==Direction.WEST)
@@ -60,7 +60,7 @@ public class GasTurbineRenderer extends ITBlockEntityRenderer<MultiblockBlockEnt
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.mulPose(new Quaternionf().rotateAxis(
-                    (state.rotationSpeed+(state.rotationSpeed*partialTicks))*Mth.DEG_TO_RAD,
+                    (state.animation_fanRotation+(state.animation_fanRotationStep*partialTicks))*Mth.DEG_TO_RAD,
                     Vec3.atLowerCornerOf(dir.getNormal()).toVector3f()
             ));
             renderDynamicModel(MODEL, poseStack, multiBufferSource, dir, level, pos, i, i1);
@@ -71,7 +71,7 @@ public class GasTurbineRenderer extends ITBlockEntityRenderer<MultiblockBlockEnt
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.mulPose(new Quaternionf().rotateAxis(
-                    (state.rotationSpeed+(state.rotationSpeed*partialTicks))*Mth.DEG_TO_RAD,
+                    (state.animation_fanRotation+(state.animation_fanRotationStep*partialTicks))*Mth.DEG_TO_RAD,
                     Vec3.atLowerCornerOf(dir.getNormal()).toVector3f()
             ));
             renderDynamicModel(MODEL_EAST_WEST, poseStack, multiBufferSource, dir, level, pos, i, i1);
@@ -82,7 +82,7 @@ public class GasTurbineRenderer extends ITBlockEntityRenderer<MultiblockBlockEnt
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.mulPose(new Quaternionf().rotateAxis(
-                    (state.rotationSpeed+(state.rotationSpeed*partialTicks))*Mth.DEG_TO_RAD,
+                    (state.animation_fanRotation+(state.animation_fanRotationStep*partialTicks))*Mth.DEG_TO_RAD,
                     Vec3.atLowerCornerOf(dir.getNormal()).toVector3f()
             ));
             renderDynamicModel(MODEL_EAST_WEST, poseStack, multiBufferSource, dir, level, pos, i, i1);
@@ -93,7 +93,7 @@ public class GasTurbineRenderer extends ITBlockEntityRenderer<MultiblockBlockEnt
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.mulPose(new Quaternionf().rotateAxis(
-                    (state.rotationSpeed+(state.rotationSpeed*partialTicks))*Mth.DEG_TO_RAD,
+                    (state.animation_fanRotation+(state.animation_fanRotationStep*partialTicks))*Mth.DEG_TO_RAD,
                     Vec3.atLowerCornerOf(dir.getNormal()).toVector3f()
             ));
             renderDynamicModel(MODEL, poseStack, multiBufferSource, dir, level, pos, i, i1);

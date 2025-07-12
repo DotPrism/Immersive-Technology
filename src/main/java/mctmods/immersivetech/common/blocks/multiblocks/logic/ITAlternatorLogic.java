@@ -140,11 +140,7 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
         if(cap==ForgeCapabilities.ENERGY)
         {
             if(position.side()==null||(
-                    position.side()==RelativeBlockFace.RIGHT&&ENERGY_OUTPUTS_LEFT.contains(position.posInMultiblock())))
-            {
-                return ctx.getState().energyCap.cast(ctx);
-            }
-            if((
+                    position.side()==RelativeBlockFace.RIGHT&&ENERGY_OUTPUTS_LEFT.contains(position.posInMultiblock()))||(
                     position.side()==RelativeBlockFace.LEFT&&ENERGY_OUTPUTS_RIGHT.contains(position.posInMultiblock()
                     )))
             {
@@ -157,7 +153,7 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
 
     public static class State implements IMultiblockState
     {
-        //public final MutableEnergyStorage energy = new MutableEnergyStorage(ENERGY_CAPACITY, 8192, 4096);
+        public final MutableEnergyStorage energy = new MutableEnergyStorage(ENERGY_CAPACITY, 8192, 4096);
         private final List<CapabilityReference<IEnergyStorage>> energyOutputs;
         private final List<CapabilityReference<IEnergyStorage>> energyOutputs2;
 
@@ -186,15 +182,13 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
         @Override
         public void writeSaveNBT(CompoundTag nbt)
         {
-            //EnergyHelper.serializeTo(energy, nbt);
-            nbt.putBoolean("active", active);
+            EnergyHelper.serializeTo(energy, nbt);
         }
 
         @Override
         public void readSaveNBT(CompoundTag nbt)
         {
-            //EnergyHelper.deserializeFrom(energy, nbt);
-            active = nbt.getBoolean("active");
+            EnergyHelper.deserializeFrom(energy, nbt);
         }
 
         @Override
