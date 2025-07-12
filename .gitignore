@@ -15,12 +15,12 @@ out
 !.idea/codeStyles
 !.idea/copyright
 classes
-/.idea
+/.idea/*
 
 # gradle
 build
 .gradle
-/.gradle
+/.gradle/*
 
 # other
 eclipse
