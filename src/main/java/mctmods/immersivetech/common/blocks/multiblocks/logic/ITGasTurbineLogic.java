@@ -19,13 +19,19 @@ import blusunrize.immersiveengineering.common.blocks.multiblocks.process.Process
 import blusunrize.immersiveengineering.common.register.IEFluids;
 import blusunrize.immersiveengineering.common.util.CachedRecipe;
 import blusunrize.immersiveengineering.common.util.sound.MultiblockSound;
+import io.netty.buffer.Unpooled;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.BoilerRecipe;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.GasTurbineRecipe;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.SteamTurbineRecipe;
 import mctmods.immersivetech.common.blocks.multiblocks.shapes.FullblockShape;
 import mctmods.immersivetech.common.blocks.multiblocks.shapes.GasTurbineShape;
 import mctmods.immersivetech.common.blocks.multiblocks.shapes.GenericShape;
+import mctmods.immersivetech.core.lib.ITLib;
+import mctmods.immersivetech.core.lib.ITMultiblockSound;
+import mctmods.immersivetech.core.registration.ITFluids;
 import mctmods.immersivetech.core.registration.ITSounds;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -37,6 +43,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -67,15 +74,81 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
     public void tickClient(IMultiblockContext<State> ctx)
     {
         final State state = ctx.getState();
+
+        float level = ITLib.remapRange(0, state.maxSpeed, 0.5f, 1.5f, state.speed);
+
+        if(!state.isSoundPlayingActive.getAsBoolean())
+        {
+            final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(2.5, 1.5, 1.5));
+            state.isSoundPlayingActive = ITMultiblockSound.startSound(
+                    () -> (state.speed >= 0 && state.ignited), ctx.isValid(), soundPos, ITSounds.gasRunning, 1f, level
+            );
+        }
+        if(!state.isSoundPlayingSpark.getAsBoolean())
+        {
+            final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(2.5, 1.5, 1.5));
+            state.isSoundPlayingSpark = ITMultiblockSound.startSound(
+                    () -> state.ignited, ctx.isValid(), soundPos, ITSounds.gasSpark, 1f, 1f
+            );
+        }
+        if(!state.isSoundPlayingArc.getAsBoolean())
+        {
+            final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(2.5, 1.5, 1.5));
+            state.isSoundPlayingArc = ITMultiblockSound.startSound(
+                    () -> (state.speed >= state.maxSpeed / 4), ctx.isValid(), soundPos, ITSounds.gasArc, 1f, 1f
+            );
+        }
+        if(!state.isSoundPlayingStarter.getAsBoolean())
+        {
+            final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(2.5, 1.5, 1.5));
+            state.isSoundPlayingStarter = ITMultiblockSound.startSound(
+                    () -> state.starterRunning, ctx.isValid(), soundPos, ITSounds.gasStarter, 1f, 1f
+            );
+        }
     }
 
     @Override
     public void tickServer(IMultiblockContext<State> ctx)
     {
         final State state = ctx.getState();
-        boolean active = state.isActive();
 
         boolean isRSEnabled = state.rsState.isEnabled(ctx);
+
+        state.rotationSpeed = state.speed == 0 ? 0f : ((float) state.speed / (float) state.maxSpeed) * state.maxRotationSpeed;
+
+        state.ignited = state.ignitionGracePeriod > 0;
+        boolean canRun = !isRSEnabled;
+        if (canRun && state.electricStarterConsumption <= state.starterStorage.getEnergyStored()) {
+            state.starterRunning = true;
+            state.starterStorage.extractEnergy(state.electricStarterConsumption, false);
+        } else state.starterRunning = false;
+
+        if (state.speed < state.maxSpeed / 4) {
+            if (canRun) {
+                if (state.ignitionGracePeriod > 0) state.ignitionGracePeriod--;
+                state.speedUp();
+            } else state.speedDown();
+        } else {
+            if(state.burnRemaining > 0 && (state.ignited || state.canIgnite())) {
+                state.burnRemaining--;
+                if (!state.ignited) state.ignite();
+                state.speedUp();
+            } else if(canRun && state.tanks.input.getFluid() != null && state.tanks.input.getFluid().getFluid() != null && (state.ignited || state.canIgnite())) {
+                GasTurbineRecipe recipe = state.recipeGetter.apply(
+                        ctx.getLevel().getRawLevel(), state.tanks.input.getFluid().getFluid()
+                );
+                if(recipe != null && recipe.fluidInput.getAmount() <= state.tanks.input.getFluidAmount()) {
+                    state.lastRecipe = recipe;
+                    state.burnRemaining = recipe.getTotalProcessTime() - 1;
+                    state.tanks.input.drain(recipe.fluidInput.getAmount(), IFluidHandler.FluidAction.EXECUTE);
+                    if(recipe.fluidOutput != null) state.tanks.flue_gas_tank.fill(recipe.fluidOutput, IFluidHandler.FluidAction.EXECUTE);
+                    if (!state.ignited) state.ignite();
+                    ctx.markMasterDirty();
+                    ctx.requestMasterBESync();
+                    state.speedUp();
+                } else state.speedDown();
+            } else state.speedDown();
+        }
     }
 
     @Override
@@ -118,8 +191,8 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         private final StoredCapability<IFluidHandler> fluidCapExhaust = new StoredCapability<>(tanks.flue_gas_tank);
         private final StoredCapability<IEnergyStorage> energyCapHV;
         private final StoredCapability<IEnergyStorage> energyCapMV;
-        private final AveragingEnergyStorage energyStorageHV;
-        private final AveragingEnergyStorage energyStorageMV;
+        private final AveragingEnergyStorage starterStorage;
+        private final AveragingEnergyStorage sparkplugStorage;
         private final BiFunction<Level, Fluid, GasTurbineRecipe> recipeGetter = CachedRecipe.cached(GasTurbineRecipe::getRecipeFor);
 
         public final RedstoneControl.RSState rsState = RedstoneControl.RSState.enabledByDefault();
@@ -128,26 +201,62 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         public boolean starterRunning = false;
         public int maxSpeed = 1800;
 
+        public Set<Fluid> allowedFuels = Set.of(IEFluids.BIODIESEL.getStill());
+
         private static final int speedGainPerTick = 3;
         private static final int speedLossPerTick = 6;
+        public float maxRotationSpeed = 72;
+        public int burnRemaining;
 
-        private boolean active = false;
-        public float animation_fanRotationStep = 0;
-        public float animation_fanRotation = 0;
-        private int animation_fanFadeIn = 0;
-        private int animation_fanFadeOut = 0;
+        public int ignitionGracePeriod = 0;
+        int sparkplugConsumption = 1024;
+        int electricStarterConsumption = 3072;
 
-        private float base = 180f;
+        public float rotationSpeed;
+
+        public GasTurbineRecipe lastRecipe;
+
+        private BooleanSupplier isSoundPlayingActive = () -> false;
+        private BooleanSupplier isSoundPlayingSpark = () -> false;
+        private BooleanSupplier isSoundPlayingArc = () -> false;
+        private BooleanSupplier isSoundPlayingStarter = () -> false;
+
+        boolean active = false;
 
         public State(IInitialMultiblockContext<State> ctx)
         {
             final Runnable markDirty = ctx.getMarkDirtyRunnable();
-            this.energyStorageHV = new AveragingEnergyStorage(ENERGY_CAPACITY);
-            this.energyStorageMV = new AveragingEnergyStorage(ENERGY_CAPACITY_MV);
-            this.energyCapHV = new StoredCapability<>(energyStorageHV);
-            this.energyCapMV = new StoredCapability<>(energyStorageMV);
-            Set<Fluid> allowedFuels = Set.of(IEFluids.BIODIESEL.getStill());
+            this.starterStorage = new AveragingEnergyStorage(ENERGY_CAPACITY);
+            this.sparkplugStorage = new AveragingEnergyStorage(ENERGY_CAPACITY_MV);
+            this.energyCapHV = new StoredCapability<>(starterStorage);
+            this.energyCapMV = new StoredCapability<>(sparkplugStorage);
             this.tanks.input.setValidator(f -> allowedFuels.contains(f.getFluid()));
+        }
+
+        public void ignite() {
+            sparkplugStorage.extractEnergy(sparkplugConsumption, false);
+            ignited = true;
+            ignitionGracePeriod = 60;
+        }
+
+        public boolean canIgnite() {
+            boolean canFuelCombust = true;
+            return sparkplugConsumption <= sparkplugStorage.getEnergyStored() && canFuelCombust;
+        }
+
+        private void speedUp() {
+            if (starterRunning) {
+                if (speed >= maxSpeed / 4) speed = Math.max(Math.min(maxSpeed, speed + speedGainPerTick - speedLossPerTick), maxSpeed / 4);
+                else speed = Math.min(maxSpeed / 4, speed + speedGainPerTick);
+            } else {
+                if (speed >= maxSpeed / 4) speed = Math.min(maxSpeed, speed + speedGainPerTick);
+                else speedDown();
+            }
+        }
+
+        private void speedDown() {
+            if (ignitionGracePeriod > 0) ignitionGracePeriod--;
+            speed = Math.max(0, speed - speedLossPerTick);
         }
 
         @Override
@@ -175,17 +284,12 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         @Override
         public void readSyncNBT(CompoundTag nbt)
         {
-            final boolean oldActive = active;
             active = nbt.getBoolean("active");
-            if(active&&!oldActive)
-                animation_fanFadeIn = 80;
-            else if(!active&&oldActive)
-                animation_fanFadeOut = 80;
         }
 
         public boolean isActive()
         {
-            return active;
+            return (speed >= 0 && ignited);
         }
     }
 
@@ -204,14 +308,14 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
 
         public Tag toNBT() {
             CompoundTag tag = new CompoundTag();
-            tag.put("steam", this.input.writeToNBT(new CompoundTag()));
-            tag.put("exhaust_steam", this.flue_gas_tank.writeToNBT(new CompoundTag()));
+            tag.put("input", this.input.writeToNBT(new CompoundTag()));
+            tag.put("flue_gas", this.flue_gas_tank.writeToNBT(new CompoundTag()));
             return tag;
         }
 
         public void readNBT(CompoundTag tag) {
-            this.input.readFromNBT(tag.getCompound("steam"));
-            this.flue_gas_tank.readFromNBT(tag.getCompound("exhaust_steam"));
+            this.input.readFromNBT(tag.getCompound("input"));
+            this.flue_gas_tank.readFromNBT(tag.getCompound("flue_gas"));
         }
 
         public int getCapacity() {
