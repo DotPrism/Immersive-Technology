@@ -2,11 +2,12 @@ package mctmods.immersivetech;
 
 import blusunrize.immersiveengineering.common.register.IEFluids;
 import mctmods.immersivetech.client.ITClientRenderHandler;
-import mctmods.immersivetech.core.ITConfig;
+import mctmods.immersivetech.core.ITCommonConfig;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.proxy.ClientProxy;
 import mctmods.immersivetech.core.proxy.CommonProxy;
 import mctmods.immersivetech.core.registration.ITContent;
+import mctmods.immersivetech.core.registration.ITFluids;
 import mctmods.immersivetech.core.registration.ITRecipeSerializers;
 import mctmods.immersivetech.core.registration.ITRegistrationHolder;
 import net.minecraft.Util;
@@ -16,6 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -23,7 +25,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
 
-import static blusunrize.immersiveengineering.common.fluids.IEFluid.BUCKET_DISPENSE_BEHAVIOR;
+import static mctmods.immersivetech.common.fluids.ITFluid.BUCKET_DISPENSE_BEHAVIOR;
 import static mctmods.immersivetech.core.lib.ITLib.MODID;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -36,9 +38,9 @@ public class ImmersiveTechnology
         return new CommonProxy();
     });
 
-    public ImmersiveTechnology(FMLJavaModLoadingContext ctx)
+    public ImmersiveTechnology()
     {
-        IEventBus modEventBus =  ctx.getModEventBus();
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ITLib.IT_LOGGER.info("IT Starting");
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
@@ -48,7 +50,7 @@ public class ImmersiveTechnology
 
         proxy.modConstruction(modEventBus);
 
-        ctx.registerConfig(ModConfig.Type.COMMON, ITConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ITCommonConfig.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -56,10 +58,8 @@ public class ImmersiveTechnology
         // Some common setup code
         ITLib.IT_LOGGER.info("HELLO FROM COMMON SETUP");
 
-        for(IEFluids.FluidEntry entry : IEFluids.ALL_ENTRIES)
+        for(ITFluids.FluidEntry entry : ITFluids.ALL_ENTRIES)
             DispenserBlock.registerBehavior(entry.getBucket(), BUCKET_DISPENSE_BEHAVIOR);
-
-        //ITConfig.items.forEach((item) -> ITLib.IT_LOGGER.info("ITEM >> {}", item.toString()));
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

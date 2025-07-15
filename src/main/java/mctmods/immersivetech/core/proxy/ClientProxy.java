@@ -53,9 +53,6 @@ public class ClientProxy extends CommonProxy
     @SubscribeEvent
     public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders ev)
     {
-        //AdvancedCokeOvenRenderer.MODEL_LEFT = new ITDynamicModel(AdvancedCokeOvenRenderer.NAME_DOOR_LEFT);
-        //AdvancedCokeOvenRenderer.MODEL_MIDDLE = new ITDynamicModel(AdvancedCokeOvenRenderer.NAME_DOOR_MIDDLE);
-        //AdvancedCokeOvenRenderer.MODEL_RIGHT = new ITDynamicModel(AdvancedCokeOvenRenderer.NAME_DOOR_RIGHT);
         CokeOvenPreheaterRenderer.MODEL = new ITDynamicModel(CokeOvenPreheaterRenderer.NAME);
         SteamTurbineRenderer.MODEL = new ITDynamicModel(SteamTurbineRenderer.NAME);
         SteamTurbineRenderer.MODEL_EAST_WEST = new ITDynamicModel(SteamTurbineRenderer.NAME_EAST_WEST);
@@ -95,6 +92,5 @@ public class ClientProxy extends CommonProxy
         registerBERenderNoContext(event, ITRegistrationHolder.COKEOVEN_PREHEATER.master(), CokeOvenPreheaterRenderer::new);
         registerBERenderNoContext(event, ITMultiblockProvider.STEAM_TURBINE.masterBE(), SteamTurbineRenderer::new);
         registerBERenderNoContext(event, ITMultiblockProvider.GAS_TURBINE.masterBE(), GasTurbineRenderer::new);
-        //registerBERenderNoContext(event, ITMultiblockProvider.ADV_COKE_OVEN.masterBE(), AdvancedCokeOvenRenderer::new);
     }
 }
