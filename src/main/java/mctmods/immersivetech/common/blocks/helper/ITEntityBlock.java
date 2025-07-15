@@ -43,7 +43,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class ITEntityBlock <T extends BlockEntity> extends ITBaseBlock implements IEBlockInterfaces.IColouredBlock, EntityBlock
+public class ITEntityBlock <T extends BlockEntity> extends ITBlockBase implements IEBlockInterfaces.IColouredBlock, EntityBlock
 {
     private boolean hasColours = false;
     private final BiFunction<BlockPos, BlockState, T> makeEntity;
