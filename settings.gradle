@@ -16,8 +16,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "ImmersiveTechnology-${version_minecraft}"
-
 // 1. Load version.properties
 def propsFile = file('version.properties')
 def props     = new Properties()
@@ -36,3 +34,5 @@ gradle.ext.nextVersion        = "${baseVersion}-b${nextBuild}"
 gradle.ext.nextBuildNumber   = nextBuild
 
 println "⤷ settings.gradle bumped to ${gradle.ext.nextVersion}"
+
+rootProject.name = "ImmersiveTechnology-${version_minecraft}-${baseVersion}"
