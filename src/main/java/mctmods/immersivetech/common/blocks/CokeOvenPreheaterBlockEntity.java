@@ -30,6 +30,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class CokeOvenPreheaterBlockEntity extends IEBaseBlockEntity implements IEBlockInterfaces.IStateBasedDirectional,
         IEBlockInterfaces.IHasDummyBlocks, IModelOffsetProvider, IEClientTickableBE, IEBlockInterfaces.ISoundBE
@@ -88,7 +89,9 @@ public class CokeOvenPreheaterBlockEntity extends IEBaseBlockEntity implements I
     @Override
     public boolean isDummy()
     {
-        if (dummy == -1 || dummy == 1)
+        if (dummy == -1)
+            return true;
+        if (dummy == 1)
             return true;
         else
             return false;
@@ -112,13 +115,14 @@ public class CokeOvenPreheaterBlockEntity extends IEBaseBlockEntity implements I
         ITLib.IT_LOGGER.info("Placing Dummies");
         state = state.setValue(IEProperties.MULTIBLOCKSLAVE, true);
 
-        //level.setBlockAndUpdate(worldPosition.offset(0, 0, -1), state);
-        //((CokeOvenPreheaterBlockEntity)level.getBlockEntity(worldPosition.offset(0, 0, -1))).dummy = -1;
-        //((CokeOvenPreheaterBlockEntity)level.getBlockEntity(worldPosition.offset(0, 0, -1))).setFacing(this.getFacing());
+        assert level != null;
+        level.setBlockAndUpdate(worldPosition.offset(0, 0, -1), state);
+        ((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, -1)))).dummy = -1;
+        ((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, -1)))).setFacing(this.getFacing());
 
         level.setBlockAndUpdate(worldPosition.offset(0, 0, 1), state);
-        ((CokeOvenPreheaterBlockEntity)level.getBlockEntity(worldPosition.offset(0, 0, 1))).dummy = 1;
-        ((CokeOvenPreheaterBlockEntity)level.getBlockEntity(worldPosition.offset(0, 0, 1))).setFacing(this.getFacing());
+        ((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, 1)))).dummy = 1;
+        ((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, 1)))).setFacing(this.getFacing());
 
     }
 

@@ -16,5 +16,8 @@
   "fluid_type.immersivetech.steam_exhaust": "Exhaust Steam",
 
   "item.immersivetech.steam_bucket": "Steam Bucket",
-  "item.immersivetech.steam_exhaust_bucket": "Exhaust Steam Bucket"
+  "item.immersivetech.steam_exhaust_bucket": "Exhaust Steam Bucket",
+
+  "desc.immersiveengineering.info.multiblock.IE:AdvancedCokeOven": "Advanced Coke Oven",
+  "desc.immersiveengineering.info.multiblock.IE:Boiler": "Boiler"
 }

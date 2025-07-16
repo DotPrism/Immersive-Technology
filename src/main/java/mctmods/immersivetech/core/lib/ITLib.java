@@ -29,6 +29,9 @@ public class ITLib
     public static ResourceLocation makeTextureLocation(String name) {
         return rl("textures/gui/" + name + ".png");
     }
+    public static ResourceLocation makeTextureLocation(String name, String folder) {
+        return rl("textures/"+ folder + "/" + name + ".png");
+    }
 
     public static  ResourceLocation rl(String name)
     {

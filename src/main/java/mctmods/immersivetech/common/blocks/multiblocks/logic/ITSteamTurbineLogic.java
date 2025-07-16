@@ -15,6 +15,7 @@ import blusunrize.immersiveengineering.common.util.CachedRecipe;
 import blusunrize.immersiveengineering.common.util.sound.MultiblockSound;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.SteamTurbineRecipe;
 import mctmods.immersivetech.common.blocks.multiblocks.shapes.FullblockShape;
+import mctmods.immersivetech.common.blocks.multiblocks.shapes.SteamTurbineShape;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.lib.ITMultiblockSound;
 import mctmods.immersivetech.core.registration.ITFluids;
@@ -154,7 +155,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
     @Override
     public Function<BlockPos, VoxelShape> shapeGetter(ShapeType shapeType)
     {
-        return FullblockShape.GETTER;
+        return SteamTurbineShape.GETTER;
     }
 
     public int speedUp(IMultiblockContext<State> ctx)

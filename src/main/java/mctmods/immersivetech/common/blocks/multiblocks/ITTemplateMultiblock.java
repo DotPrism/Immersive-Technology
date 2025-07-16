@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
-public class ITTemplateMultiblock extends TemplateMultiblock {
+public abstract class ITTemplateMultiblock extends TemplateMultiblock {
     private final MultiblockRegistration<?> logic;
 
     public ITTemplateMultiblock(ResourceLocation loc, BlockPos masterFromOrigin, BlockPos triggerFromOrigin, BlockPos size, MultiblockRegistration<?> logic) {
