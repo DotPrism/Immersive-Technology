@@ -3,16 +3,12 @@ package mctmods.immersivetech.core;
 import mctmods.immersivetech.core.lib.ITLib;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 @Mod.EventBusSubscriber(modid = ITLib.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ITClientConfig
 {
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-
-    public static final ForgeConfigSpec SPEC = BUILDER.build();
+    public static final ForgeConfigSpec SPEC;
 
     public final static ForgeConfigSpec.DoubleValue multiblockSpecialRenderDistanceModifier;
     public static final ForgeConfigSpec.BooleanValue doSpecialRenderGasTurbine;
@@ -33,10 +29,7 @@ public class ITClientConfig
         doSpecialRenderCokeOvenPreheater = builder
                 .comment("This controls if the animations and special client rendering applies to the Coke Oven Preheaters")
                 .define("coke_oven_preheater_renderer", true);
-    }
 
-    @SubscribeEvent
-    static void onLoad(final ModConfigEvent event)
-    {
+        SPEC = builder.build();
     }
 }
