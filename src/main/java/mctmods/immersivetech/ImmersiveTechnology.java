@@ -27,6 +27,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
+import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.mixin.Mixins;
 
 import static mctmods.immersivetech.common.fluids.ITFluid.BUCKET_DISPENSE_BEHAVIOR;
 import static mctmods.immersivetech.core.lib.ITLib.MODID;
@@ -48,11 +50,18 @@ public class ImmersiveTechnology
         modEventBus.addListener(this::commonSetup);
         ITRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
 
+        ITLib.IT_LOGGER.info("Adding ITRegistrationHolder Registries");
         ITRegistrationHolder.addRegistersToEventBus(modEventBus);
 
+        ITLib.IT_LOGGER.info("Starting Proxy Mod Construction");
         proxy.modConstruction(modEventBus);
 
+        ITLib.IT_LOGGER.info("Initialzing Packet Handler");
         ITPacketHandler.initialize();
+
+        ITLib.IT_LOGGER.info("Initialzing Mixins and adding Mixin Configuration");
+        MixinBootstrap.init();
+        Mixins.addConfiguration("mixins.immersivetech.json");
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ITCommonConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ITServerConfig.SPEC);

@@ -9,7 +9,6 @@ import java.util.Set;
 
 public class ImmersiveTechMixinPlugin implements IMixinConfigPlugin
 {
-
     @Override
     public void onLoad(String mixinPackage)
     {

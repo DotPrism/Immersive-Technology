@@ -49,3 +49,6 @@ mandatory=false
 versionRange="[${jei_version},)"
 ordering="NONE"
 side="BOTH"
+
+[[mixins]]
+config="mixins.immersivetech.json"
