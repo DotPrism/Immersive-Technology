@@ -2,7 +2,9 @@ package mctmods.immersivetech;
 
 import blusunrize.immersiveengineering.common.register.IEFluids;
 import mctmods.immersivetech.client.ITClientRenderHandler;
+import mctmods.immersivetech.core.ITClientConfig;
 import mctmods.immersivetech.core.ITCommonConfig;
+import mctmods.immersivetech.core.ITServerConfig;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.proxy.ClientProxy;
 import mctmods.immersivetech.core.proxy.CommonProxy;
@@ -51,6 +53,8 @@ public class ImmersiveTechnology
         proxy.modConstruction(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ITCommonConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ITServerConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ITClientConfig.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

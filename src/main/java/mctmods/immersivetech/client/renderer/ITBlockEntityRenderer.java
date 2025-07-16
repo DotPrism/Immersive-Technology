@@ -2,6 +2,7 @@ package mctmods.immersivetech.client.renderer;
 
 import blusunrize.immersiveengineering.api.utils.DirectionUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
+import mctmods.immersivetech.core.ITClientConfig;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.core.Direction;
@@ -24,6 +25,13 @@ public abstract class ITBlockEntityRenderer<T extends BlockEntity> implements Bl
     protected static void rotateForFacingNoCentering(PoseStack stack, Direction facing)
     {
         stack.mulPose(ROTATE_FOR_FACING.get(facing));
+    }
+
+    @Override
+    public int getViewDistance()
+    {
+        double distanceMod = ITClientConfig.multiblockSpecialRenderDistanceModifier.get();
+        return (int)(BlockEntityRenderer.super.getViewDistance() * distanceMod);
     }
 
     protected static void rotateForFacing(PoseStack stack, Direction facing)

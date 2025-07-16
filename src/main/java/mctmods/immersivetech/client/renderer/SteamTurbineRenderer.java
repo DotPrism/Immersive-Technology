@@ -9,6 +9,7 @@ import blusunrize.immersiveengineering.client.utils.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mctmods.immersivetech.client.models.ITDynamicModel;
 import mctmods.immersivetech.common.blocks.multiblocks.logic.ITSteamTurbineLogic;
+import mctmods.immersivetech.core.ITClientConfig;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -33,6 +34,9 @@ public class SteamTurbineRenderer extends ITBlockEntityRenderer<MultiblockBlockE
     @Override
     public void render(MultiblockBlockEntityMaster<ITSteamTurbineLogic.State> tile, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int i1)
     {
+        boolean doRendering = ITClientConfig.doSpecialRenderSteamTurbine.get();
+        if(!doRendering) return;
+
         IMultiblockBEHelperMaster<ITSteamTurbineLogic.State> helper = tile.getHelper();
         IMultiblockContext<ITSteamTurbineLogic.State> context = helper.getContext();
         ITSteamTurbineLogic.State state = context.getState();

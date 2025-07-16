@@ -6,9 +6,11 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockCon
 import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockBlockEntityMaster;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.MultiblockOrientation;
 import blusunrize.immersiveengineering.client.utils.RenderUtils;
+import com.igteam.immersivegeology.common.config.IGClientConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mctmods.immersivetech.client.models.ITDynamicModel;
 import mctmods.immersivetech.common.blocks.multiblocks.logic.ITGasTurbineLogic;
+import mctmods.immersivetech.core.ITClientConfig;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -31,6 +33,9 @@ public class GasTurbineRenderer extends ITBlockEntityRenderer<MultiblockBlockEnt
     @Override
     public void render(MultiblockBlockEntityMaster<ITGasTurbineLogic.State> tile, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int i1)
     {
+        boolean doRendering = ITClientConfig.doSpecialRenderGasTurbine.get();
+        if(!doRendering) return;
+
         IMultiblockBEHelperMaster<ITGasTurbineLogic.State> helper = tile.getHelper();
         IMultiblockContext<ITGasTurbineLogic.State> context = helper.getContext();
         ITGasTurbineLogic.State state = context.getState();

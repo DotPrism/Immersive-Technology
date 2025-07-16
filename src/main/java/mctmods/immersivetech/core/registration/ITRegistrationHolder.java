@@ -20,6 +20,7 @@ import blusunrize.immersiveengineering.common.register.IEBlocks;
 import com.igteam.immersivegeology.common.block.multiblocks.logic.helper.IGMultiblockBuilder;
 import mctmods.immersivetech.common.blocks.CokeOvenPreheaterBlock;
 import mctmods.immersivetech.common.blocks.CokeOvenPreheaterBlockEntity;
+import mctmods.immersivetech.common.blocks.CreativeBarrelBlock;
 import mctmods.immersivetech.common.blocks.ReinforcedCokeBrick;
 import mctmods.immersivetech.common.blocks.helper.ITBlockInterfaces;
 import mctmods.immersivetech.common.blocks.helper.ITMultiblockBEType;
