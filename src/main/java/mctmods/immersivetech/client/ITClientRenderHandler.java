@@ -33,7 +33,7 @@ public class ITClientRenderHandler implements ItemColor, BlockColor
 
     public static ITClientRenderHandler INSTANCE = new ITClientRenderHandler();
 
-    // Register This as the color handler for all IG Items and Blocks
+    // Register This as the color handler for all IT Items and Blocks
     public static void register(){
         for(Supplier<Item> holder : ITRegistrationHolder.getItemRegistryMap().values()){
             Item i = holder.get();
@@ -59,7 +59,7 @@ public class ITClientRenderHandler implements ItemColor, BlockColor
         mapping.clear();
     }
 
-    // Color Function for IEN Blocks
+    // Color Function for IT Blocks
     @Override
     public int getColor(BlockState state, @Nullable BlockAndTintGetter getter, @Nullable BlockPos pos, int index) {
         if(state.getBlock() instanceof ITBlockType type)
@@ -67,7 +67,7 @@ public class ITClientRenderHandler implements ItemColor, BlockColor
         return 0xffffff;
     }
 
-    // Color Function for IEN Items
+    // Color Function for IT Items
     @Override
     public int getColor(ItemStack stack, int tintIndex) {
         if(stack.getItem() instanceof ITFlagItem type)
