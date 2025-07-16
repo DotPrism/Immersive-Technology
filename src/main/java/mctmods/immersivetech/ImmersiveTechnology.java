@@ -2,7 +2,10 @@ package mctmods.immersivetech;
 
 import blusunrize.immersiveengineering.common.register.IEFluids;
 import mctmods.immersivetech.client.ITClientRenderHandler;
+import mctmods.immersivetech.common.network.ITPacketHandler;
+import mctmods.immersivetech.core.ITClientConfig;
 import mctmods.immersivetech.core.ITCommonConfig;
+import mctmods.immersivetech.core.ITServerConfig;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.proxy.ClientProxy;
 import mctmods.immersivetech.core.proxy.CommonProxy;
@@ -43,14 +46,17 @@ public class ImmersiveTechnology
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ITLib.IT_LOGGER.info("IT Starting");
         modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::clientSetup);
         ITRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
 
         ITRegistrationHolder.addRegistersToEventBus(modEventBus);
 
         proxy.modConstruction(modEventBus);
 
+        ITPacketHandler.initialize();
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ITCommonConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ITServerConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ITClientConfig.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -70,14 +76,6 @@ public class ImmersiveTechnology
         ITLib.IT_LOGGER.info("HELLO from server starting");
     }
 
-    private void clientSetup(FMLClientSetupEvent event)
-    {
-        ITClientRenderHandler.register();
-        ITClientRenderHandler.init(event);
-        ITContent.initializeManualEntries();
-        ITContent.registerContainersAndScreens();
-    }
-
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
@@ -87,6 +85,11 @@ public class ImmersiveTechnology
             // Some client setup code
             ITLib.IT_LOGGER.info("HELLO FROM CLIENT SETUP");
             ITLib.IT_LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
+            ITClientRenderHandler.register();
+            ITClientRenderHandler.init(event);
+            ITContent.initializeManualEntries();
+            ITContent.registerContainersAndScreens();
         }
     }
 }

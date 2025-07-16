@@ -5,6 +5,7 @@ import blusunrize.immersiveengineering.common.blocks.metal.BlastFurnacePreheater
 import com.mojang.blaze3d.vertex.PoseStack;
 import mctmods.immersivetech.client.models.ITDynamicModel;
 import mctmods.immersivetech.common.blocks.CokeOvenPreheaterBlockEntity;
+import mctmods.immersivetech.core.ITClientConfig;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,6 +24,9 @@ public class CokeOvenPreheaterRenderer extends ITBlockEntityRenderer<CokeOvenPre
             float partial, @Nonnull PoseStack transform, @Nonnull MultiBufferSource buffers, int light, int overlay
     )
     {
+        boolean doRendering = ITClientConfig.doSpecialRenderGasTurbine.get();
+        if(!doRendering) return;
+
         transform.pushPose();
         transform.translate(0.5, 0.5, 0.5);
         rotateForFacingNoCentering(transform, bEntity.getFacing());
