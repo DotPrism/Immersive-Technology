@@ -51,13 +51,18 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
     @Override
     public void tickClient(IMultiblockContext<State> ctx) {
         final State state = ctx.getState();
-        float targetLevel = ITLib.remapRange(0, state.maxSpeed, 0.5f, 1.0f, state.speed);
+        float targetLevel = ITLib.remapRange(0, state.maxSpeed, 0.55f, 1.0f, state.speed);
         if (state.currentLevel == 0f) { state.currentLevel = targetLevel; }
         else state.currentLevel = state.currentLevel * 0.9f + targetLevel * 0.1f;
         float smoothedLevel = state.currentLevel;
 
+        float targetPitch = ITLib.remapRange(0, state.maxSpeed, 0.5f, 1.5f, state.speed);
+        if (state.currentPitch == 0f) { state.currentPitch = targetPitch; }
+        else state.currentPitch = state.currentPitch * 0.95f + targetPitch * 0.05f;
+        if (state.currentPitch < 0.5f) { state.currentPitch = 0.5f; }
+
         if (state.active||state.animation_fanFadeIn > 0||state.animation_fanFadeOut > 0) {
-            float base = (state.speed / (float)state.maxSpeed) * 180f;
+            float base = (state.speed / (float)state.maxSpeed) * 72f;
             float step = state.active?base: 0;
             if (state.animation_fanFadeIn > 0) {
                 step -= (state.animation_fanFadeIn/80f)*base;
@@ -77,17 +82,17 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
             state.soundId++;
             int thisId = state.soundId;
             state.isSoundPlaying = ITMultiblockSound.startSound(
-                    () -> state.active && state.soundId == thisId,
+                    () -> (state.active || state.animation_fanFadeOut > 0) && state.soundId == thisId,
                     ctx.isValid(),
                     soundPos,
                     ITSounds.steamTurbine,
                     () -> {
                         LocalPlayer player = Minecraft.getInstance().player;
                         if (player == null) { return 0f; }
-                        float attenuation = (float) Math.max(player.distanceToSqr(soundPos) / 8, 1);
+                        float attenuation = (float) Math.max(player.distanceToSqr(soundPos) / 32, 1);
                         return (11 * (smoothedLevel - 0.5f)) / attenuation;
                     },
-                    () -> smoothedLevel
+                    () -> state.currentPitch
             );
         }
     }
@@ -102,7 +107,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
             state.burnRemaining--;
             state.speed = Math.min(state.maxSpeed, state.speed + state.speedUpRate);
             state.active = true;
-        } else if (state.rsState.isEnabled(ctx) && state.tanks.input_tank.getFluid() != null) {
+        } else if (state.rsState.isEnabled(ctx)) {
             FluidStack fluid = state.tanks.input_tank.getFluid();
             SteamTurbineRecipe recipe = state.recipeGetter.apply(
                     ctx.getLevel().getRawLevel(), fluid
@@ -127,7 +132,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
 
         pumpOutputOut(ctx);
 
-        if (previouslyActive != state.active) {
+        if (previouslyActive != state.active || state.speed % 20 == 0) {
             ctx.markMasterDirty();
             ctx.requestMasterBESync();
         }
@@ -157,7 +162,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
     public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         if (cap==ForgeCapabilities.FLUID_HANDLER) {
             if (position.side()==null || (position.side()==RelativeBlockFace.BACK && FLUID_POS.contains(position.posInMultiblock()))) { return ctx.getState().fluidCap.cast(ctx); }
-            else if (position.side()==null || (position.side()==RelativeBlockFace.FRONT && FLUID_POS2.contains(position.posInMultiblock()))) { return ctx.getState().fluidCapExhaust.cast(ctx); }
+            else if (position.side()==RelativeBlockFace.FRONT && FLUID_POS2.contains(position.posInMultiblock())) { return ctx.getState().fluidCapExhaust.cast(ctx); }
         }
         return LazyOptional.empty();
     }
@@ -187,10 +192,10 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
     }
 
     public static class State implements IMultiblockState {
-        private SteamTurbineTank tanks;
+        private final SteamTurbineTank tanks;
         private final StoredCapability<IFluidHandler> fluidCap;
         private final StoredCapability<IFluidHandler> fluidCapExhaust;
-        private BiFunction<Level, FluidStack, SteamTurbineRecipe> recipeGetter;
+        private final BiFunction<Level, FluidStack, SteamTurbineRecipe> recipeGetter;
 
         public RedstoneControl.RSState rsState = RedstoneControl.RSState.enabledByDefault();
 
@@ -207,6 +212,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         private int animation_fanFadeIn = 0;
         private int animation_fanFadeOut = 0;
         private transient float currentLevel = 0f;
+        private transient float currentPitch = 0f;
 
         public State(IInitialMultiblockContext<State> ctx) {
             final Runnable markDirty = ctx.getMarkDirtyRunnable();
@@ -236,6 +242,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         @Override
         public void writeSyncNBT(CompoundTag nbt) {
             nbt.putBoolean("active", active);
+            nbt.putInt("speed", speed);
             nbt.put("tanks", tanks.toNBT());
         }
 
@@ -243,6 +250,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         public void readSyncNBT(CompoundTag nbt) {
             final boolean oldActive = active;
             active = nbt.getBoolean("active");
+            speed = nbt.getInt("speed");
 
             tanks.readNBT(nbt.getCompound("tanks"));
 
