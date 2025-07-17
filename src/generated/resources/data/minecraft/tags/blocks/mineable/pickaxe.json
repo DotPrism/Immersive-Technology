@@ -4,6 +4,7 @@
     "immersivetech:boiler",
     "immersivetech:alternator",
     "immersivetech:steam_turbine",
-    "immersivetech:gas_turbine"
+    "immersivetech:gas_turbine",
+    "immersivetech:coke_oven_preheater"
   ]
 }
