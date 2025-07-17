@@ -17,8 +17,8 @@ import mctmods.immersivetech.common.blocks.multiblocks.recipe.SteamTurbineRecipe
 import mctmods.immersivetech.common.blocks.multiblocks.shapes.FullblockShape;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.lib.ITMultiblockSound;
-import mctmods.immersivetech.core.registration.ITFluids;
 import mctmods.immersivetech.core.registration.ITSounds;
+import mctmods.immersivetech.common.fluids.ITMarkableFluidTank;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -27,7 +27,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
@@ -37,43 +36,34 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.Consumer;
 
-public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic.State>,  IServerTickableComponent<ITSteamTurbineLogic.State>, IClientTickableComponent<ITSteamTurbineLogic.State>
-{
-    private static final BlockPos MASTER_POS = new BlockPos(1, 1,0);
+public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic.State>,  IServerTickableComponent<ITSteamTurbineLogic.State>, IClientTickableComponent<ITSteamTurbineLogic.State> {
     private static final List<BlockPos> FLUID_POS = List.of(new BlockPos(2,1,9), new BlockPos(1,1,0));
     private static final List<BlockPos> FLUID_POS2 = List.of(new BlockPos(1,0,1));
     public static final BlockPos REDSTONE_POS = new BlockPos(0,1,9);
-
     public static final int TANK_CAPACITY = 12* FluidType.BUCKET_VOLUME;
 
     @Override
-    public void tickClient(IMultiblockContext<State> ctx)
-    {
+    public void tickClient(IMultiblockContext<State> ctx) {
         final State state = ctx.getState();
         float targetLevel = ITLib.remapRange(0, state.maxSpeed, 0.5f, 1.0f, state.speed);
-        if (state.currentLevel == 0f) state.currentLevel = targetLevel;
+        if (state.currentLevel == 0f) { state.currentLevel = targetLevel; }
         else state.currentLevel = state.currentLevel * 0.9f + targetLevel * 0.1f;
         float smoothedLevel = state.currentLevel;
 
-        if(state.active||state.animation_fanFadeIn > 0||state.animation_fanFadeOut > 0)
-        {
+        if (state.active||state.animation_fanFadeIn > 0||state.animation_fanFadeOut > 0) {
             float base = (state.speed / (float)state.maxSpeed) * 180f;
             float step = state.active?base: 0;
-            if(state.animation_fanFadeIn > 0)
-            {
+            if (state.animation_fanFadeIn > 0) {
                 step -= (state.animation_fanFadeIn/80f)*base;
                 state.animation_fanFadeIn--;
             }
-            if(state.animation_fanFadeOut > 0)
-            {
+            if (state.animation_fanFadeOut > 0) {
                 step += (state.animation_fanFadeOut/80f)*base;
                 state.animation_fanFadeOut--;
             }
@@ -82,8 +72,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
             state.animation_fanRotation %= 360;
         }
 
-        if (!state.isSoundPlaying.getAsBoolean())
-        {
+        if (!state.isSoundPlaying.getAsBoolean()) {
             final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(2.5, 1.5, 1.5));
             state.soundId++;
             int thisId = state.soundId;
@@ -94,7 +83,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
                     ITSounds.steamTurbine,
                     () -> {
                         LocalPlayer player = Minecraft.getInstance().player;
-                        if (player == null) return 0f;
+                        if (player == null) { return 0f; }
                         float attenuation = (float) Math.max(player.distanceToSqr(soundPos) / 8, 1);
                         return (11 * (smoothedLevel - 0.5f)) / attenuation;
                     },
@@ -113,15 +102,18 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
             state.burnRemaining--;
             state.speed = Math.min(state.maxSpeed, state.speed + state.speedUpRate);
             state.active = true;
-        } else if (state.rsState.isEnabled(ctx) && state.tanks.steam.getFluid() != null) {
-            FluidStack fluid = state.tanks.steam.getFluid();
+        } else if (state.rsState.isEnabled(ctx) && state.tanks.input_tank.getFluid() != null) {
+            FluidStack fluid = state.tanks.input_tank.getFluid();
             SteamTurbineRecipe recipe = state.recipeGetter.apply(
                     ctx.getLevel().getRawLevel(), fluid
             );
             if (recipe != null && fluid.getAmount() >= recipe.inputAmount) {
-                state.tanks.steam.drain(recipe.inputAmount, FluidAction.EXECUTE);
+                state.tanks.input_tank.drain(recipe.inputAmount, FluidAction.EXECUTE);
                 if (recipe.fluidOutput != null) {
-                    state.tanks.exhaust_steam.fill(recipe.fluidOutput, FluidAction.EXECUTE);
+                    int filled = state.tanks.output_tank.fill(recipe.fluidOutput, FluidAction.EXECUTE);
+                    if (filled < recipe.fluidOutput.getAmount()) {
+                        // Excess discarded, operation continues
+                    }
                 }
                 state.burnRemaining = recipe.getTotalProcessTime() - 1;
                 state.speed = Math.min(state.maxSpeed, state.speed + state.speedUpRate);
@@ -143,90 +135,70 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
 
     private void pumpOutputOut(IMultiblockContext<State> ctx) {
         final State state = ctx.getState();
-        if (state.tanks.exhaust_steam.getFluidAmount() == 0) return;
+        if (state.tanks.output_tank.getFluidAmount() == 0) { return; }
         BlockPos outputPos = ctx.getLevel().toAbsolute(new BlockPos(1, 0, 1));
         Direction facing = ctx.getLevel().getOrientation().front();
         BlockPos adjacentPos = outputPos.relative(facing);
         Level world = ctx.getLevel().getRawLevel();
         BlockEntity te = world.getBlockEntity(adjacentPos);
-        if (te == null) return;
+        if (te == null) { return; }
         LazyOptional<IFluidHandler> handlerOpt = te.getCapability(ForgeCapabilities.FLUID_HANDLER, facing.getOpposite());
-        if (!handlerOpt.isPresent()) return;
+        if (!handlerOpt.isPresent()) { return; }
         IFluidHandler handler = handlerOpt.orElseThrow(RuntimeException::new);
-        FluidStack out = state.tanks.exhaust_steam.getFluid();
+        FluidStack out = state.tanks.output_tank.getFluid();
         int accepted = handler.fill(out, FluidAction.SIMULATE);
-        if (accepted == 0) return;
+        if (accepted == 0) { return; }
         int drained = handler.fill(Utils.copyFluidStackWithAmount(out, Math.min(out.getAmount(), accepted), false), FluidAction.EXECUTE);
-        state.tanks.exhaust_steam.drain(drained, FluidAction.EXECUTE);
-        if (drained > 0) ctx.markMasterDirty();
+        state.tanks.output_tank.drain(drained, FluidAction.EXECUTE);
+        if (drained > 0) { ctx.markMasterDirty(); }
     }
 
     @Override
-    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap)
-    {
-        if(cap==ForgeCapabilities.FLUID_HANDLER)
-        {
-            if(position.side()==null || (position.side()==RelativeBlockFace.BACK && FLUID_POS.contains(position.posInMultiblock())))
-                return ctx.getState().fluidCap.cast(ctx);
-            else if(position.side()==null || (position.side()==RelativeBlockFace.FRONT && FLUID_POS2.contains(position.posInMultiblock())))
-                return ctx.getState().fluidCapExhaust.cast(ctx);
-
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
+        if (cap==ForgeCapabilities.FLUID_HANDLER) {
+            if (position.side()==null || (position.side()==RelativeBlockFace.BACK && FLUID_POS.contains(position.posInMultiblock()))) { return ctx.getState().fluidCap.cast(ctx); }
+            else if (position.side()==null || (position.side()==RelativeBlockFace.FRONT && FLUID_POS2.contains(position.posInMultiblock()))) { return ctx.getState().fluidCapExhaust.cast(ctx); }
         }
-
         return LazyOptional.empty();
     }
 
     @Override
-    public State createInitialState(IInitialMultiblockContext<State> ctx)
-    {
-        return new State();
+    public State createInitialState(IInitialMultiblockContext<State> ctx) {
+        return new State(ctx);
     }
 
     @Override
-    public Function<BlockPos, VoxelShape> shapeGetter(ShapeType shapeType)
-    {
+    public Function<BlockPos, VoxelShape> shapeGetter(ShapeType shapeType) {
         return FullblockShape.GETTER;
     }
 
-    public int speedUp(IMultiblockContext<State> ctx)
-    {
+    public int speedUp(IMultiblockContext<State> ctx) {
         final State state = ctx.getState();
-
         int speedOut = 0;
-
         speedOut += state.speedUpRate;
-
         return speedOut;
     }
 
-    public int slowDown(IMultiblockContext<State> ctx)
-    {
+    public int slowDown(IMultiblockContext<State> ctx) {
         final State state = ctx.getState();
-
         int speedOut = 0;
-
         speedOut -= state.slowDownRate;
-
         return speedOut;
     }
 
-    public static class State implements IMultiblockState
-    {
-        private SteamTurbineTank tanks = new SteamTurbineTank();
-        private StoredCapability<IFluidHandler> fluidCap = new StoredCapability<>(tanks.steam);
-        private StoredCapability<IFluidHandler> fluidCapExhaust = new StoredCapability<>(tanks.exhaust_steam);
-        private BiFunction<Level, FluidStack, SteamTurbineRecipe> recipeGetter = CachedRecipe.cached(SteamTurbineRecipe::findFuel);
+    public static class State implements IMultiblockState {
+        private SteamTurbineTank tanks;
+        private final StoredCapability<IFluidHandler> fluidCap;
+        private final StoredCapability<IFluidHandler> fluidCapExhaust;
+        private BiFunction<Level, FluidStack, SteamTurbineRecipe> recipeGetter;
 
         public RedstoneControl.RSState rsState = RedstoneControl.RSState.enabledByDefault();
 
-        public float angle = 0.2f;
-        private int slowDownRate = 6;
-        private int speedUpRate = 3;
+        private final int slowDownRate = 6;
+        private final int speedUpRate = 3;
         public int maxSpeed = 1800;
         public int speed = 0;
-
         private int burnRemaining = 0;
-
         private boolean active = false;
         private BooleanSupplier isSoundPlaying = () -> false;
         private transient int soundId = 0;
@@ -236,13 +208,17 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         private int animation_fanFadeOut = 0;
         private transient float currentLevel = 0f;
 
-        public State()
-        {
+        public State(IInitialMultiblockContext<State> ctx) {
+            final Runnable markDirty = ctx.getMarkDirtyRunnable();
+            Consumer<Void> markDirtyConsumer = v -> markDirty.run();
+            this.tanks = new SteamTurbineTank(markDirtyConsumer);
+            this.fluidCap = new StoredCapability<>(tanks.input_tank);
+            this.fluidCapExhaust = new StoredCapability<>(tanks.output_tank);
+            this.recipeGetter = CachedRecipe.cached(SteamTurbineRecipe::findFuel);
         }
 
         @Override
-        public void writeSaveNBT(CompoundTag nbt)
-        {
+        public void writeSaveNBT(CompoundTag nbt) {
             nbt.putInt("speed", speed);
             nbt.putBoolean("active", active);
             nbt.putInt("burnRemaining", burnRemaining);
@@ -250,8 +226,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         }
 
         @Override
-        public void readSaveNBT(CompoundTag nbt)
-        {
+        public void readSaveNBT(CompoundTag nbt) {
             speed = nbt.getInt("speed");
             active = nbt.getBoolean("active");
             burnRemaining = nbt.getInt("burnRemaining");
@@ -259,54 +234,43 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         }
 
         @Override
-        public void writeSyncNBT(CompoundTag nbt)
-        {
+        public void writeSyncNBT(CompoundTag nbt) {
             nbt.putBoolean("active", active);
+            nbt.put("tanks", tanks.toNBT());
         }
 
         @Override
-        public void readSyncNBT(CompoundTag nbt)
-        {
+        public void readSyncNBT(CompoundTag nbt) {
             final boolean oldActive = active;
             active = nbt.getBoolean("active");
-            if(active&&!oldActive)
-                animation_fanFadeIn = 80;
-            else if(!active&&oldActive)
-                animation_fanFadeOut = 80;
+
+            tanks.readNBT(nbt.getCompound("tanks"));
+
+            if (active && !oldActive) { animation_fanFadeIn = 80; }
+            else if (!active && oldActive) { animation_fanFadeOut = 80; }
         }
 
-        public boolean isActive()
-        {
+        public boolean isActive() {
             return active;
         }
     }
-    public record SteamTurbineTank(FluidTank steam, FluidTank exhaust_steam)
-    {
-        public SteamTurbineTank()
-        {
-            this(new FluidTank(TANK_CAPACITY), new FluidTank(TANK_CAPACITY));
-        }
-
-        public SteamTurbineTank(FluidTank steam, FluidTank exhaust_steam)
-        {
-            this.steam = steam;
-            this.exhaust_steam = exhaust_steam;
+    public record SteamTurbineTank(ITMarkableFluidTank input_tank, ITMarkableFluidTank output_tank) {
+        public SteamTurbineTank(Consumer<Void> markDirty) {
+            this(new ITMarkableFluidTank(TANK_CAPACITY, markDirty), new ITMarkableFluidTank(TANK_CAPACITY, markDirty));
         }
 
         public Tag toNBT() {
             CompoundTag tag = new CompoundTag();
-            tag.put("steam", this.steam.writeToNBT(new CompoundTag()));
-            tag.put("exhaust_steam", this.exhaust_steam.writeToNBT(new CompoundTag()));
+            tag.put("input", this.input_tank.writeToNBT(new CompoundTag()));
+            tag.put("output", this.output_tank.writeToNBT(new CompoundTag()));
             return tag;
         }
 
         public void readNBT(CompoundTag tag) {
-            this.steam.readFromNBT(tag.getCompound("steam"));
-            this.exhaust_steam.readFromNBT(tag.getCompound("exhaust_steam"));
+            this.input_tank.readFromNBT(tag.getCompound("input"));
+            this.output_tank.readFromNBT(tag.getCompound("output"));
         }
 
-        public int getCapacity() {
-            return TANK_CAPACITY;
-        }
+        public int getCapacity() { return TANK_CAPACITY; }
     }
 }
