@@ -3,9 +3,11 @@
   "package": "mctmods.immersivetech.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
+  "refmap": "mctmods.immersivetech.refmap.json",
   "client": [
   ],
   "mixins": [
+    "MixinFluidProtection"
   ],
   "injectors": {
     "defaultRequire": 1

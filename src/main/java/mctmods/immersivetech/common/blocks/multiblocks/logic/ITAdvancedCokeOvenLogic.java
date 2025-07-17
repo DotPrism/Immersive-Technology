@@ -79,7 +79,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
     private static final Vec3 SMOKE_POS = new Vec3(1.5, 3.9, 1.5);
     public static final BlockPos MASTER_OFFSET = new BlockPos(0, 0, 0);
     public static final MultiblockFace OUTPUT_TANK_OFFSET = new MultiblockFace(1, 0, 0, RelativeBlockFace.BACK);
-    private static final MultiblockFace OUTPUT_POS = new MultiblockFace(1,0,2, RelativeBlockFace.FRONT);
+    private static final MultiblockFace OUTPUT_POS = new MultiblockFace(1,0,3, RelativeBlockFace.FRONT);
     private static final BlockPos[] HEATER_OFFSETS = {
             new BlockPos(-1, 0, 1), new BlockPos(3, 0, 1)
     };
@@ -173,11 +173,11 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
             context.markMasterDirty();
 
         final IItemHandlerModifiable inventory = state.getInventory();
-        ItemStack stack = inventory.getStackInSlot(2);
+        ItemStack stack = inventory.getStackInSlot(1);
         if(!stack.isEmpty())
         {
             stack = Utils.insertStackIntoInventory(state.outputRef, stack, false);
-            inventory.setStackInSlot(2, stack);
+            inventory.setStackInSlot(1, stack);
         }
 
         if(activeBeforeTick!=active)
@@ -335,7 +335,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
                     new ArrayFluidHandler(new IFluidTank[]{tank}, true, false, ctx.getMarkDirtyRunnable())
             );
             this.itemOutputCap = new StoredCapability<>(new WrappingItemHandler(
-                    inventory, false, true, new WrappingItemHandler.IntRange(0, 1)
+                    getInventory(), false, true, new WrappingItemHandler.IntRange(2, 3)
             ));
             this.fluidOutput = ctx.getCapabilityAt(ForgeCapabilities.FLUID_HANDLER, new MultiblockFace(FLUID_OUTPUT_CAP.side(), FLUID_OUTPUT_CAP.posInMultiblock().north()));
             this.outputRef = ctx.getCapabilityAt(ForgeCapabilities.ITEM_HANDLER, OUTPUT_POS);
