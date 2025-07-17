@@ -1,0 +1,11 @@
+{
+  "type": "immersivetech:distiller",
+  "input0": {
+    "amount": 100,
+    "tag": "minecraft:water"
+  },
+  "result": {
+    "amount": 100,
+    "fluid": "immersivetech:distilled_water"
+  }
+}

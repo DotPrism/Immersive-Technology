@@ -1,0 +1,135 @@
+{
+  "parent": "minecraft:block/block",
+  "dynamic": false,
+  "inner_model": {
+    "parent": "minecraft:block/block",
+    "automatic_culling": false,
+    "flip_v": true,
+    "loader": "forge:obj",
+    "model": "immersivetech:models/block/multiblock/obj/distiller/distiller.obj",
+    "textures": {
+      "particle": "immersivetech:block/multiblocks/metal_multiblock_distiller"
+    }
+  },
+  "loader": "immersiveengineering:basic_split",
+  "split_parts": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      1,
+      2
+    ],
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      2
+    ],
+    [
+      2,
+      1,
+      0
+    ],
+    [
+      2,
+      1,
+      1
+    ],
+    [
+      2,
+      1,
+      2
+    ],
+    [
+      1,
+      2,
+      1
+    ],
+    [
+      1,
+      2,
+      2
+    ],
+    [
+      2,
+      2,
+      1
+    ],
+    [
+      2,
+      2,
+      2
+    ],
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      2
+    ],
+    [
+      2,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      1
+    ],
+    [
+      2,
+      0,
+      2
+    ],
+    [
+      0,
+      2,
+      1
+    ],
+    [
+      0,
+      2,
+      2
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      2
+    ]
+  ],
+  "textures": {
+    "particle": "immersivetech:block/multiblocks/metal_multiblock_distiller"
+  }
+}

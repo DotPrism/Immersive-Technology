@@ -1,9 +1,10 @@
-// 1.20.1	2025-05-31T16:24:35.739062	Recipes
+// 1.20.1	2025-07-16T19:49:26.6480702	Recipes
 b388436dd0b1950fe67b0af50139775a62cf1e6c data/immersivetech/recipes/boiler/biodiesel.json
 30ea2a5e56b9a847375fd94c597266e1dcd411cd data/immersivetech/recipes/boiler/creosote.json
 cd04cecade05a73fbd4919644da12280fcf080ee data/immersivetech/recipes/cokeovenadv/charcoal.json
 9b23abfde829320e73760ac5cd3bd54f25c289c1 data/immersivetech/recipes/cokeovenadv/coke.json
 feb845a163d55a679f17447febf8896ba5a1adbb data/immersivetech/recipes/cokeovenadv/coke_block.json
+24872aac7a6e07c282cbb69f4087b0293ca7177d data/immersivetech/recipes/distiller/distilled_water.json
 bb855dee70b16cf35fc2ced1241411ffeb03fba1 data/immersivetech/recipes/gas_turbine/biodiesel.json
 2b891679ca857c7bdc35bc3109880d4ed89e4094 data/immersivetech/recipes/gas_turbine/creosote.json
 627939fc0ec0a0d3754aaad6e3e4b8835c947f4d data/immersivetech/recipes/steamturbine/steam.json

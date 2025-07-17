@@ -2,11 +2,7 @@ package mctmods.immersivetech.common.data.generators;
 
 import blusunrize.immersiveengineering.api.IETags;
 import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
-import blusunrize.immersiveengineering.common.register.IEFluids;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.AdvancedCokeOvenRecipeBuilder;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.BoilerRecipeBuilder;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.GasTurbineRecipeBuilder;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.SteamTurbineRecipeBuilder;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.*;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.registration.ITFluids;
 import mctmods.immersivetech.core.registration.ITTags;
@@ -18,7 +14,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,6 +39,7 @@ public class ITRecipes extends RecipeProvider
         recipesCoke(consumer);
         recipesBoiler(consumer);
         recipesTurbine(consumer);
+        recipesDistiller(consumer);
     }
 
     private void itemRecipes(Consumer<FinishedRecipe> consumer)
@@ -100,6 +97,13 @@ public class ITRecipes extends RecipeProvider
                 .setOil(FluidType.BUCKET_VOLUME/4)
                 .setTime(600)
                 .build(out, toRL("cokeovenadv/charcoal"));
+    }
+
+    private void recipesDistiller(@Nonnull Consumer<FinishedRecipe> out)
+    {
+        DistillerRecipeBuilder.builder(ITFluids.DISTILLED_WATER.getStill(), 100)
+                .addInput(FluidTags.WATER, 100)
+                .build(out, toRL("distiller/distilled_water"));
     }
 
     private ResourceLocation toRL(String s)

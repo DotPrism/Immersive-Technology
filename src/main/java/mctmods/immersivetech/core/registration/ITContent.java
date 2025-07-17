@@ -30,6 +30,7 @@ public class ITContent
         InnerNode<ResourceLocation, ManualEntry> multiblock_category = parent_category.getOrCreateSubnode(new ResourceLocation(ITLib.MODID, "it_multiblocks"), 0);
         //multiblockEntry(instance, multiblock_category, "example");
         multiblockEntry(instance, multiblock_category, "boiler");
+        multiblockEntry(instance, multiblock_category, "distiller");
         multiblockEntry(instance, multiblock_category, "alternator");
         multiblockEntry(instance, multiblock_category, "coke_oven_advanced");
         multiblockEntry(instance, multiblock_category, "steam_turbine");

@@ -125,6 +125,7 @@ public class ITRegistrationHolder
     private static void initializeMultiblocks()
     {
         registerMB("boiler", ITBoiler.INSTANCE, ITMultiblockProvider.BOILER);
+        registerMB("distiller", ITDistiller.INSTANCE, ITMultiblockProvider.DISTILLER);
         registerMB("alternator", ITAlternator.INSTANCE, ITMultiblockProvider.ALTERNATOR);
         registerMB("steam_turbine", ITSteamTurbine.INSTANCE, ITMultiblockProvider.STEAM_TURBINE);
         registerMB("gas_turbine", ITGasTurbine.INSTANCE, ITMultiblockProvider.GAS_TURBINE);

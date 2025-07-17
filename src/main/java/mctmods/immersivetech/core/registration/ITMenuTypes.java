@@ -10,6 +10,7 @@ import mctmods.immersivetech.common.blocks.multiblocks.gui.AdvancedCokeOvenMenu;
 import mctmods.immersivetech.common.blocks.multiblocks.gui.BoilerMenu;
 import mctmods.immersivetech.common.blocks.multiblocks.logic.ITAdvancedCokeOvenLogic;
 import mctmods.immersivetech.common.blocks.multiblocks.logic.ITBoilerLogic;
+import mctmods.immersivetech.common.blocks.multiblocks.logic.ITDistillerLogic;
 import mctmods.immersivetech.core.lib.ITLib;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -39,6 +40,9 @@ public class ITMenuTypes
 
     public static final MultiblockContainer<ITBoilerLogic.State, BoilerMenu> BOILER_MENU =
             registerMultiblock(ITLib.GUIID_Boiler, BoilerMenu::makeServer, BoilerMenu::makeClient);
+
+    //public static final MultiblockContainer<ITDistillerLogic.State, BoilerMenu> DISTILLER_MENU =
+            //registerMultiblock(ITLib.GUIID_Boiler, BoilerMenu::makeServer, BoilerMenu::makeClient);
 
     public static <M extends AbstractContainerMenu>
     RegistryObject<MenuType<M>> registerSimple(String name, IEMenuTypes.SimpleContainerConstructor<M> factory)

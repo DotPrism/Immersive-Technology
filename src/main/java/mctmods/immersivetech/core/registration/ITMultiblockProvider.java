@@ -14,6 +14,12 @@ public class ITMultiblockProvider
             .gui(ITMenuTypes.BOILER_MENU)
             .redstone(s -> s.rsState, ITBoilerLogic.REDSTONE_POS)
             .build();
+    public static final MultiblockRegistration<ITDistillerLogic.State> DISTILLER =
+            ITRegistrationHolder.metal(new ITDistillerLogic(), "distiller")
+                    .structure(() -> ITRegistrationHolder.getMBTemplate.apply("distiller"))
+                    //.gui(ITMenuTypes.BOILER_MENU)
+                    .redstone(s -> s.rsState, ITDistillerLogic.REDSTONE_POS)
+                    .build();
     public static final MultiblockRegistration<ITAlternatorLogic.State> ALTERNATOR =
             ITRegistrationHolder.metal(new ITAlternatorLogic(), "alternator")
                     .structure(() -> ITRegistrationHolder.getMBTemplate.apply("alternator"))

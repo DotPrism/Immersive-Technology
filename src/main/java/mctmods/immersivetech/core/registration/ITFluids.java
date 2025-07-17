@@ -61,6 +61,10 @@ public class ITFluids
             "flue_gas", rl("block/fluid/flue_gas"), rl("block/fluid/flue_gas")
     );
 
+    public static final ITFluids.FluidEntry DISTILLED_WATER = FluidEntry.make(
+            "distilled_water", rl("block/fluid/distilled_water"), rl("block/fluid/distilled_water")
+    );
+
     public record FluidEntry(
             RegistryObject<ITFluid> flowing,
             RegistryObject<ITFluid> still,

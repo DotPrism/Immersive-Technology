@@ -1,8 +1,9 @@
-// 1.20.1	2025-05-31T14:53:48.2929392	Block States: immersivetech
+// 1.20.1	2025-07-16T20:41:44.6005625	Block States: immersivetech
 ddd08e966b15cd253dea409715eab58c37a199af assets/immersivetech/blockstates/alternator.json
 e8946d36801dadb19e736198433a2181f220ccec assets/immersivetech/blockstates/boiler.json
 9646a13ec9a25a7a737c68bd7e4dbbfee2c9acbd assets/immersivetech/blockstates/coke_oven_advanced.json
 f587551b18802f23786f06f97f52a9ca36bdd55d assets/immersivetech/blockstates/coke_oven_preheater.json
+fab32e3653b59c332b8f40ab5c1d083d7ae91849 assets/immersivetech/blockstates/distiller.json
 89f3a30a947259932508f1890637029d606633f9 assets/immersivetech/blockstates/gas_turbine.json
 868de4b62f3b9ad93990931e15ad088f36c82df8 assets/immersivetech/blockstates/reinforced_coke_brick.json
 03ca92811e2fd8b8223945f35af11e4875397bdf assets/immersivetech/blockstates/steam_turbine.json
@@ -12,6 +13,8 @@ da48b6d0b6f919b77c9693c30fea36638cfa27e0 assets/immersivetech/models/block/multi
 e568bbd525152117d0815a932663805c67867220 assets/immersivetech/models/block/multiblock/obj/boiler/boiler_mirrored_split.json
 df2cf1686f0ab951365958b8265450df00b59267 assets/immersivetech/models/block/multiblock/obj/boiler/boiler_split.json
 4ce7fd730ae46e7fad85880fa0a792b7ae09e720 assets/immersivetech/models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced_split.json
+98ad4586e4367f71d61fa5dadbd443b118eae0b2 assets/immersivetech/models/block/multiblock/obj/distiller/distiller_mirrored_split.json
+df3b6d90df9b6b823dbeb19579ad9a076d68d51b assets/immersivetech/models/block/multiblock/obj/distiller/distiller_split.json
 79d883e00d7b4d834bc8dbeb66a5e8e7a66ac2ee assets/immersivetech/models/block/multiblock/obj/gas_turbine/gas_turbine_mirrored_split.json
 ff6cd7ec4f20795d1fbcf4c3dc85303340bf8aa3 assets/immersivetech/models/block/multiblock/obj/gas_turbine/gas_turbine_split.json
 daee863a4ad8f02f5a5551671945913f3bad112c assets/immersivetech/models/block/multiblock/obj/steam_turbine/steam_turbine_mirrored_split.json

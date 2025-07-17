@@ -61,23 +61,6 @@ public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider
                 .modelLocation(rl("models/block/multiblock/obj/gas_turbine/gas_turbine_rotor_east_west.obj"))
                 .flipV(true)
                 .end();
-        /*
-        getBuilder(AdvancedCokeOvenRenderer.NAME_DOOR_LEFT)
-                .customLoader(ObjModelBuilder::begin)
-                .modelLocation(rl("models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced_door_left.obj"))
-                .flipV(true)
-                .end();
-        getBuilder(AdvancedCokeOvenRenderer.NAME_DOOR_MIDDLE)
-                .customLoader(ObjModelBuilder::begin)
-                .modelLocation(rl("models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced_door_middle.obj"))
-                .flipV(true)
-                .end();
-        getBuilder(AdvancedCokeOvenRenderer.NAME_DOOR_RIGHT)
-                .customLoader(ObjModelBuilder::begin)
-                .modelLocation(rl("models/block/multiblock/obj/coke_oven_advanced/coke_oven_advanced_door_right.obj"))
-                .flipV(true)
-                .end();
-        */
     }
 
     public static ResourceLocation rl(String path) {

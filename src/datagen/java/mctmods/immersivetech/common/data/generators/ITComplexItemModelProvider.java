@@ -37,6 +37,7 @@ public class ITComplexItemModelProvider extends ModelProvider<TRSRModelBuilder>
     protected void registerModels()
     {
         generateMultiblockModel("boiler", ITMultiblockProvider.BOILER.block());
+        generateMultiblockModel("distiller", ITMultiblockProvider.DISTILLER.block());
         generateMultiblockModel("alternator", ITMultiblockProvider.ALTERNATOR.block());
         generateMultiblockModel("coke_oven_advanced", ITMultiblockProvider.ADV_COKE_OVEN.block());
         generateMultiblockModel("steam_turbine", ITMultiblockProvider.STEAM_TURBINE.block());
