@@ -240,11 +240,11 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
                     }
                 } else {
                     state.stall = false;
-                    if (isRSEnabled && state.burnRemaining > 0 && (state.ignited || canIgnite(state))) {
+                    if (state.burnRemaining > 0 && (state.ignited || canIgnite(state))) {
                         state.burnRemaining--;
                         if (!state.ignited) { ignite(state, ctx); }
                         speedUp(state);
-                    } else if (isRSEnabled && state.tanks.input_tank.getFluid() != null && (state.ignited || canIgnite(state))) {
+                    } else if (state.ignited || canIgnite(state)) {
                         FluidStack fluid = state.tanks.input_tank.getFluid();
                         GasTurbineRecipe recipe = state.recipeGetter.apply(ctx.getLevel().getRawLevel(), fluid);
                         if (recipe != null && fluid.getAmount() >= recipe.inputAmount) {
@@ -384,7 +384,6 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         private transient float currentPitch = 0f;
 
         public boolean stall = false;
-        private transient boolean lastStall = false;
 
         public State(IInitialMultiblockContext<State> ctx) {
             final Runnable markDirty = ctx.getMarkDirtyRunnable();
