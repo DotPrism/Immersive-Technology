@@ -1,24 +1,54 @@
 package mctmods.immersivetech.common.blocks.multiblocks.recipe.builder;
 
 import blusunrize.immersiveengineering.api.crafting.builders.IEFinishedRecipe;
+import com.google.gson.JsonObject;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.GasTurbineRecipe;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class GasTurbineRecipeBuilder extends IEFinishedRecipe<GasTurbineRecipeBuilder>
 {
-    public static final String FLUID_TAG_KEY = "fluidTag";
-    public static final String BURN_TIME_KEY = "burnTime";
-
-    private GasTurbineRecipeBuilder(TagKey<Fluid> fluid, int burnTime)
+    public GasTurbineRecipeBuilder()
     {
         super(GasTurbineRecipe.SERIALIZER.get());
-        addWriter(obj -> obj.addProperty(FLUID_TAG_KEY, fluid.location().toString()));
-        addWriter(obj -> obj.addProperty(BURN_TIME_KEY, burnTime));
     }
 
-    public static GasTurbineRecipeBuilder builder(TagKey<Fluid> fluid, int burnTime)
+    public static GasTurbineRecipeBuilder builder()
     {
-        return new GasTurbineRecipeBuilder(fluid, burnTime);
+        return new GasTurbineRecipeBuilder();
+    }
+
+    public GasTurbineRecipeBuilder addInput(TagKey<Fluid> fluidTag, int amount)
+    {
+        return this.addWriter((jsonObject) -> {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("tag", fluidTag.location().toString());
+            obj.addProperty("amount", amount);
+            jsonObject.add("input", obj);
+        });
+    }
+
+    public GasTurbineRecipeBuilder addOutput(FluidStack fluidStack)
+    {
+        return this.addWriter((jsonObject) -> {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("fluid", ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
+            obj.addProperty("amount", fluidStack.getAmount());
+            jsonObject.add("output", obj);
+        });
+    }
+
+    public GasTurbineRecipeBuilder addOutput(Fluid fluid, int amount)
+    {
+        return addOutput(new FluidStack(fluid, amount));
+    }
+
+    public GasTurbineRecipeBuilder setTime(int time)
+    {
+        return this.addWriter((jsonObject) -> {
+            jsonObject.addProperty("time", time);
+        });
     }
 }

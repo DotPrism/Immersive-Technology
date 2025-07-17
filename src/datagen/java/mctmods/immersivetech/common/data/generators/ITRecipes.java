@@ -2,7 +2,6 @@ package mctmods.immersivetech.common.data.generators;
 
 import blusunrize.immersiveengineering.api.IETags;
 import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
-import blusunrize.immersiveengineering.common.register.IEFluids;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.AdvancedCokeOvenRecipeBuilder;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.BoilerRecipeBuilder;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.GasTurbineRecipeBuilder;
@@ -28,7 +27,7 @@ import java.util.function.Consumer;
 
 public class ITRecipes extends RecipeProvider
 {
-    private final HashMap<String, Integer> PATH_COUNT = new HashMap<>();
+    private HashMap<String, Integer> PATH_COUNT = new HashMap<>();
 
     public ITRecipes(PackOutput pOutput)
     {
@@ -73,14 +72,21 @@ public class ITRecipes extends RecipeProvider
 
     private void recipesTurbine(@Nonnull Consumer<FinishedRecipe> out)
     {
-        SteamTurbineRecipeBuilder.builder(ITTags.fluidSteam, 25)
+        SteamTurbineRecipeBuilder.builder()
+                .addInput(ITTags.fluidSteam, 100)
+                .addOutput(ITFluids.STEAM_EXHAUST.getStill(), 100)
+                .setTime(1)
                 .build(out, toRL("steamturbine/steam"));
-        SteamTurbineRecipeBuilder.builder(ITTags.fluidSteamForge, 25)
+        SteamTurbineRecipeBuilder.builder()
+                .addInput(ITTags.fluidSteamForge, 100)
+                .addOutput(ITFluids.STEAM_EXHAUST.getStill(), 100)
+                .setTime(1)
                 .build(out, toRL("steamturbine/steam_forge"));
-        GasTurbineRecipeBuilder.builder(IETags.fluidBiodiesel, 25)
+        GasTurbineRecipeBuilder.builder()
+                .addInput(IETags.fluidBiodiesel, 160)
+                .addOutput(ITFluids.FLUE_GAS.getStill(), 1000)
+                .setTime(10)
                 .build(out, toRL("gas_turbine/biodiesel"));
-        GasTurbineRecipeBuilder.builder(IETags.fluidCreosote, 10)
-                .build(out, toRL("gas_turbine/creosote"));
     }
 
     private void recipesCoke(@Nonnull Consumer<FinishedRecipe> out)

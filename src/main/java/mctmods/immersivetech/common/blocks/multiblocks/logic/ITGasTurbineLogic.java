@@ -14,6 +14,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.util.ShapeType;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.StoredCapability;
 import blusunrize.immersiveengineering.common.register.IEFluids;
 import blusunrize.immersiveengineering.common.util.CachedRecipe;
+import blusunrize.immersiveengineering.common.util.Utils;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.GasTurbineRecipe;
 import mctmods.immersivetech.common.blocks.multiblocks.shapes.GasTurbineShape;
 import mctmods.immersivetech.core.lib.ITLib;
@@ -75,7 +76,10 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        float speedLevel = ITLib.remapRange(0, state.maxSpeed, 0.5f, 1.5f, state.speed);
+        float targetLevel = ITLib.remapRange(0, state.maxSpeed, 0.5f, 1.0f, state.speed);
+        if (state.currentLevel == 0f) state.currentLevel = targetLevel;
+        else state.currentLevel = state.currentLevel * 0.9f + targetLevel * 0.1f;
+        float smoothedLevel = state.currentLevel;
 
         if(state.active || state.animation_fanFadeIn > 0 || state.animation_fanFadeOut > 0)
         {
@@ -101,47 +105,60 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         Vec3 arcPos = ctx.getLevel().toAbsolute(new Vec3(0.5, 1.5, 1.5));
         Vec3 ignitionPos = ctx.getLevel().toAbsolute(new Vec3(1.5, 1.5, 1.5));
 
-        float att = (float) Math.max(player.distanceToSqr(runningPos) / 64, 1);
-
         if (state.speed > 0) {
             if (!state.runningSoundPlaying.getAsBoolean()) {
+                state.runningSoundId++;
                 int thisId = state.runningSoundId;
                 state.runningSoundPlaying = ITMultiblockSound.startSound(
                         () -> state.speed > 0 && state.runningSoundId == thisId,
                         ctx.isValid(),
                         runningPos,
                         ITSounds.gasRunning,
-                        true,
-                        (speedLevel - 0.5f) / (4 * att),
-                        speedLevel
+                        () -> {
+                            LocalPlayer p = Minecraft.getInstance().player;
+                            if (p == null) return 0f;
+                            float a = (float) Math.max(p.distanceToSqr(runningPos) / 8, 1);
+                            return (11 * (smoothedLevel - 0.5f)) / a;
+                        },
+                        () -> smoothedLevel
                 );
             }
         }
 
         if (state.starterRunning) {
             if (!state.starterSoundPlaying.getAsBoolean()) {
+                state.starterSoundId++;
                 int thisId = state.starterSoundId;
                 state.starterSoundPlaying = ITMultiblockSound.startSound(
                         () -> state.starterRunning && state.starterSoundId == thisId,
                         ctx.isValid(),
                         starterPos,
                         ITSounds.gasStarter,
-                        true,
-                        Math.min((speedLevel - 0.5f) / att, 0.2f),
-                        1f
+                        () -> {
+                            LocalPlayer p = Minecraft.getInstance().player;
+                            if (p == null) return 0f;
+                            float a = (float) Math.max(p.distanceToSqr(starterPos) / 64, 1);
+                            return Math.min((smoothedLevel - 0.5f) / a, 0.2f);
+                        },
+                        () -> 1f
                 );
             }
             if (state.speed >= state.maxSpeed / 4) {
                 if (!state.arcSoundPlaying.getAsBoolean()) {
+                    state.arcSoundId++;
                     int thisId = state.arcSoundId;
                     state.arcSoundPlaying = ITMultiblockSound.startSound(
                             () -> state.starterRunning && state.speed >= state.maxSpeed / 4 && state.arcSoundId == thisId,
                             ctx.isValid(),
                             arcPos,
                             ITSounds.gasArc,
-                            true,
-                            Math.min((speedLevel - 0.5f) / att, 0.2f),
-                            1f
+                            () -> {
+                                LocalPlayer p = Minecraft.getInstance().player;
+                                if (p == null) return 0f;
+                                float a = (float) Math.max(p.distanceToSqr(arcPos) / 64, 1);
+                                return Math.min((smoothedLevel - 0.5f) / a, 0.2f);
+                            },
+                            () -> 1f
                     );
                 }
             }
@@ -177,42 +194,56 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         boolean isRSEnabled = state.rsState.isEnabled(ctx);
         state.ignited = state.ignitionGracePeriod > 0;
 
+        state.starterRunning = false;
         if (isRSEnabled && electricStarterConsumption <= state.energyStorageHV.getEnergyStored()) {
             state.starterRunning = true;
             state.energyStorageHV.extractEnergy(electricStarterConsumption, false);
-        } else {
-            state.starterRunning = false;
+        }
+
+        if (state.speed <= 0) {
+            state.speed = 0;
+            state.isShutdown = false;
+        }
+
+        if (!isRSEnabled) {
+            state.isShutdown = true;
+            state.ignitionGracePeriod = 0;
+            state.burnRemaining = 0;
         }
 
         if (state.speed < state.maxSpeed / 4) {
-            if (isRSEnabled) {
+            if (isRSEnabled && !state.isShutdown) {
                 if (state.ignitionGracePeriod > 0) state.ignitionGracePeriod--;
                 speedUp(state);
             } else {
                 speedDown(state);
             }
         } else {
-            if (state.burnRemaining > 0 && (state.ignited || canIgnite(state))) {
-                state.burnRemaining--;
-                if (!state.ignited) ignite(state, ctx);
-                speedUp(state);
-            } else if (isRSEnabled && state.tanks.input.getFluidAmount() >= 10 && (state.ignited || canIgnite(state))) {
-                Fluid in = state.tanks.input.getFluid().getFluid();
-                GasTurbineRecipe recipe = state.recipeGetter.apply(ctx.getLevel().getRawLevel(), in);
-                if (recipe != null) {
-                    FluidStack inputDrain = new FluidStack(in, 10);
-                    FluidStack outputFill = new FluidStack(ITFluids.FLUE_GAS.getStill(), 10);
-                    state.tanks.input.drain(inputDrain, FluidAction.EXECUTE);
-                    state.tanks.flue_gas_tank.fill(outputFill, FluidAction.EXECUTE);
-                    state.burnRemaining = recipe.getBurnTime() - 1;
+            if (state.isShutdown) {
+                speedDown(state);
+            } else {
+                if (isRSEnabled && state.burnRemaining > 0 && (state.ignited || canIgnite(state))) {
+                    state.burnRemaining--;
                     if (!state.ignited) ignite(state, ctx);
                     speedUp(state);
-                    ctx.markMasterDirty();
+                } else if (isRSEnabled && state.tanks.input.getFluid() != null && (state.ignited || canIgnite(state))) {
+                    FluidStack fluid = state.tanks.input.getFluid();
+                    GasTurbineRecipe recipe = state.recipeGetter.apply(ctx.getLevel().getRawLevel(), fluid);
+                    if (recipe != null && fluid.getAmount() >= recipe.inputAmount) {
+                        state.tanks.input.drain(recipe.inputAmount, FluidAction.EXECUTE);
+                        if (recipe.fluidOutput != null) {
+                            state.tanks.flue_gas_tank.fill(recipe.fluidOutput, FluidAction.EXECUTE);
+                        }
+                        state.burnRemaining = recipe.getTotalProcessTime() - 1;
+                        if (!state.ignited) ignite(state, ctx);
+                        speedUp(state);
+                        ctx.markMasterDirty();
+                    } else {
+                        speedDown(state);
+                    }
                 } else {
                     speedDown(state);
                 }
-            } else {
-                speedDown(state);
             }
         }
 
@@ -272,7 +303,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
                 FluidStack out = state.tanks.flue_gas_tank.getFluid();
                 int accepted = handler.fill(out, FluidAction.SIMULATE);
                 if (accepted > 0) {
-                    int drained = handler.fill(out.copy(), FluidAction.EXECUTE);
+                    int drained = handler.fill(Utils.copyFluidStackWithAmount(out, Math.min(out.getAmount(), accepted), false), FluidAction.EXECUTE);
                     state.tanks.flue_gas_tank.drain(drained, FluidAction.EXECUTE);
                     ctx.markMasterDirty();
                 }
@@ -315,16 +346,16 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
 
     public static class State implements IMultiblockState
     {
-        private final GasTurbineTank tanks = new GasTurbineTank();
-        private final StoredCapability<IFluidHandler> fluidCap = new StoredCapability<>(tanks.input);
-        private final StoredCapability<IFluidHandler> fluidCapExhaust = new StoredCapability<>(tanks.flue_gas_tank);
-        private final StoredCapability<IEnergyStorage> energyCapHV;
-        private final StoredCapability<IEnergyStorage> energyCapMV;
-        private final AveragingEnergyStorage energyStorageHV;
-        private final AveragingEnergyStorage energyStorageMV;
-        private final BiFunction<Level, Fluid, GasTurbineRecipe> recipeGetter = CachedRecipe.cached(GasTurbineRecipe::getRecipeFor);
+        private GasTurbineTank tanks = new GasTurbineTank();
+        private StoredCapability<IFluidHandler> fluidCap = new StoredCapability<>(tanks.input);
+        private StoredCapability<IFluidHandler> fluidCapExhaust = new StoredCapability<>(tanks.flue_gas_tank);
+        private StoredCapability<IEnergyStorage> energyCapHV;
+        private StoredCapability<IEnergyStorage> energyCapMV;
+        private AveragingEnergyStorage energyStorageHV;
+        private AveragingEnergyStorage energyStorageMV;
+        private BiFunction<Level, FluidStack, GasTurbineRecipe> recipeGetter = CachedRecipe.cached(GasTurbineRecipe::findFuel);
 
-        public final RedstoneControl.RSState rsState = RedstoneControl.RSState.enabledByDefault();
+        public RedstoneControl.RSState rsState = RedstoneControl.RSState.enabledByDefault();
         public int speed;
         public boolean ignited;
         public boolean starterRunning = false;
@@ -335,6 +366,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
 
         public int burnRemaining = 0;
         public int ignitionGracePeriod = 0;
+        public boolean isShutdown = false;
 
         private boolean active = false;
         public float animation_fanRotationStep = 0;
@@ -349,6 +381,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         private transient int runningSoundId = 0;
         private transient int starterSoundId = 0;
         private transient int arcSoundId = 0;
+        private transient float currentLevel = 0f;
 
         public State(IInitialMultiblockContext<State> ctx)
         {
@@ -357,8 +390,8 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
             this.energyStorageMV = new AveragingEnergyStorage(ENERGY_CAPACITY_MV);
             this.energyCapHV = new StoredCapability<>(energyStorageHV);
             this.energyCapMV = new StoredCapability<>(energyStorageMV);
-            Set<Fluid> allowedFuels = Set.of(IEFluids.BIODIESEL.getStill());
-            this.tanks.input.setValidator(f -> allowedFuels.contains(f.getFluid()));
+            this.tanks = new GasTurbineTank();
+            this.recipeGetter = CachedRecipe.cached(GasTurbineRecipe::findFuel);
         }
 
         @Override
@@ -370,6 +403,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
             nbt.putBoolean("ignited", ignited);
             nbt.putInt("burnRemaining", burnRemaining);
             nbt.putInt("ignitionGracePeriod", ignitionGracePeriod);
+            nbt.putBoolean("isShutdown", isShutdown);
             nbt.put("tanks", tanks.toNBT());
         }
 
@@ -382,6 +416,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
             ignited = nbt.getBoolean("ignited");
             burnRemaining = nbt.getInt("burnRemaining");
             ignitionGracePeriod = nbt.getInt("ignitionGracePeriod");
+            isShutdown = nbt.getBoolean("isShutdown");
             tanks.readNBT(nbt.getCompound("tanks"));
         }
 
@@ -392,6 +427,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
             nbt.putBoolean("starterRunning", starterRunning);
             nbt.putBoolean("ignited", ignited);
             nbt.putInt("speed", speed);
+            nbt.putBoolean("isShutdown", isShutdown);
         }
 
         @Override
@@ -401,11 +437,13 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
             final boolean oldStarterRunning = starterRunning;
             final boolean oldIgnited = ignited;
             final int oldSpeed = speed;
+            final boolean oldIsShutdown = isShutdown;
 
             active = nbt.getBoolean("active");
             starterRunning = nbt.getBoolean("starterRunning");
             ignited = nbt.getBoolean("ignited");
             speed = nbt.getInt("speed");
+            isShutdown = nbt.getBoolean("isShutdown");
 
             if(active && !oldActive)
                 animation_fanFadeIn = 80;
