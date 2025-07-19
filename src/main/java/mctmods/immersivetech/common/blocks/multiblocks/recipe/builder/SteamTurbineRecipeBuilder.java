@@ -1,30 +1,54 @@
 package mctmods.immersivetech.common.blocks.multiblocks.recipe.builder;
 
-import blusunrize.immersiveengineering.api.crafting.IERecipeSerializer;
-import blusunrize.immersiveengineering.api.crafting.IngredientWithSize;
-import blusunrize.immersiveengineering.api.crafting.builders.GeneratorFuelBuilder;
 import blusunrize.immersiveengineering.api.crafting.builders.IEFinishedRecipe;
-import blusunrize.immersiveengineering.api.energy.GeneratorFuel;
+import com.google.gson.JsonObject;
 import mctmods.immersivetech.common.blocks.multiblocks.recipe.SteamTurbineRecipe;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class SteamTurbineRecipeBuilder extends IEFinishedRecipe<SteamTurbineRecipeBuilder>
 {
-    public static final String FLUID_TAG_KEY = "fluidTag";
-    public static final String BURN_TIME_KEY = "burnTime";
-
-    private SteamTurbineRecipeBuilder(TagKey<Fluid> fluid, int burnTime)
+    public SteamTurbineRecipeBuilder()
     {
         super(SteamTurbineRecipe.SERIALIZER.get());
-        addWriter(obj -> obj.addProperty(FLUID_TAG_KEY, fluid.location().toString()));
-        addWriter(obj -> obj.addProperty(BURN_TIME_KEY, burnTime));
     }
 
-    public static SteamTurbineRecipeBuilder builder(TagKey<Fluid> fluid, int burnTime)
+    public static SteamTurbineRecipeBuilder builder()
     {
-        return new SteamTurbineRecipeBuilder(fluid, burnTime);
+        return new SteamTurbineRecipeBuilder();
+    }
+
+    public SteamTurbineRecipeBuilder addInput(TagKey<Fluid> fluidTag, int amount)
+    {
+        return this.addWriter((jsonObject) -> {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("tag", fluidTag.location().toString());
+            obj.addProperty("amount", amount);
+            jsonObject.add("input", obj);
+        });
+    }
+
+    public SteamTurbineRecipeBuilder addOutput(FluidStack fluidStack)
+    {
+        return this.addWriter((jsonObject) -> {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("fluid", ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
+            obj.addProperty("amount", fluidStack.getAmount());
+            jsonObject.add("output", obj);
+        });
+    }
+
+    public SteamTurbineRecipeBuilder addOutput(Fluid fluid, int amount)
+    {
+        return addOutput(new FluidStack(fluid, amount));
+    }
+
+    public SteamTurbineRecipeBuilder setTime(int time)
+    {
+        return this.addWriter((jsonObject) -> {
+            jsonObject.addProperty("time", time);
+        });
     }
 }

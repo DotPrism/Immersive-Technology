@@ -1,6 +1,5 @@
 package mctmods.immersivetech.core.lib;
 
-import blusunrize.immersiveengineering.client.ClientUtils;
 import blusunrize.immersiveengineering.mixin.accessors.client.GuiSubtitleOverlayAccess;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -14,15 +13,24 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
-public class ITMultiblockSound extends AbstractTickableSoundInstance
-{
+public class ITMultiblockSound extends AbstractTickableSoundInstance {
     private final BooleanSupplier active;
     private final BooleanSupplier valid;
-    private final float maxVolume;
+    private final Supplier<Float> volumeSupplier;
+    private final Supplier<Float> pitchSupplier;
     private long subtitleMillis;
 
-    public ITMultiblockSound(BooleanSupplier active, BooleanSupplier valid, Vec3 pos, SoundEvent sound, boolean loop, float maxVolume, float pitch) {
+    public ITMultiblockSound(
+            BooleanSupplier active,
+            BooleanSupplier valid,
+            Vec3 pos,
+            SoundEvent sound,
+            boolean loop,
+            Supplier<Float> volumeSupplier,
+            Supplier<Float> pitchSupplier
+    ) {
         super(sound, SoundSource.BLOCKS, SoundInstance.createUnseededRandom());
         this.active = active;
         this.valid = valid;
@@ -31,17 +39,33 @@ public class ITMultiblockSound extends AbstractTickableSoundInstance
         this.z = pos.z;
         this.looping = loop;
         this.volume = 0.0F;
-        this.maxVolume = maxVolume;
-        this.pitch = pitch;
-        this.subtitleMillis = Util.getMillis();;
+        this.volumeSupplier = volumeSupplier;
+        this.pitchSupplier = pitchSupplier;
+        this.pitch = pitchSupplier.get();
+        this.subtitleMillis = Util.getMillis();
     }
 
-    public static BooleanSupplier startSound(BooleanSupplier active, BooleanSupplier valid, Vec3 pos, RegistryObject<SoundEvent> sound, float maxVolume, float pitch) {
-        return startSound(active, valid, pos, sound, true, maxVolume, pitch);
+    public static BooleanSupplier startSound(
+            BooleanSupplier active,
+            BooleanSupplier valid,
+            Vec3 pos,
+            RegistryObject<SoundEvent> sound,
+            Supplier<Float> volumeSupplier,
+            Supplier<Float> pitchSupplier
+    ) {
+        return startSound(active, valid, pos, sound, true, volumeSupplier, pitchSupplier);
     }
 
-    public static BooleanSupplier startSound(BooleanSupplier active, BooleanSupplier valid, Vec3 pos, RegistryObject<SoundEvent> sound, boolean loop, float maxVolume, float pitch) {
-        ITMultiblockSound instance = new ITMultiblockSound(active, valid, pos, (SoundEvent)sound.get(), loop, maxVolume, pitch);
+    public static BooleanSupplier startSound(
+            BooleanSupplier active,
+            BooleanSupplier valid,
+            Vec3 pos,
+            RegistryObject<SoundEvent> sound,
+            boolean loop,
+            Supplier<Float> volumeSupplier,
+            Supplier<Float> pitchSupplier
+    ) {
+        ITMultiblockSound instance = new ITMultiblockSound(active, valid, pos, sound.get(), loop, volumeSupplier, pitchSupplier);
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         soundManager.play(instance);
         return () -> soundManager.isActive(instance);
@@ -54,25 +78,21 @@ public class ITMultiblockSound extends AbstractTickableSoundInstance
     public void tick() {
         if (!this.valid.getAsBoolean()) {
             this.stop();
-        } else if (this.active.getAsBoolean()) {
+        } else {
             long currentMillis = Util.getMillis();
             if (currentMillis - this.subtitleMillis > 1000L) {
                 SoundManager soundManager = Minecraft.getInstance().getSoundManager();
                 WeighedSoundEvents weighedsoundevents = this.resolve(soundManager);
-                if (weighedsoundevents != null) {
-                    ((GuiSubtitleOverlayAccess) ClientUtils.mc().gui).getSubtitleOverlay().onPlaySound(this, weighedsoundevents);
-                }
-
+                ((GuiSubtitleOverlayAccess) Minecraft.getInstance().gui).getSubtitleOverlay().onPlaySound(this, weighedsoundevents);
                 this.subtitleMillis = currentMillis;
             }
 
-            this.volume = this.maxVolume;
-
-            // 🔊 Set pitch dynamically (example: based on time or a condition)
-            this.pitch = 1.0f + 0.2f; // or use a dynamic value like Math.sin(), etc.
-        } else {
-            this.volume = 0.0F;
-            this.pitch = 1.0f; // Optional: reset to normal when not active
+            if (this.active.getAsBoolean()) {
+                this.volume = this.volumeSupplier.get();
+                this.pitch = this.pitchSupplier.get();
+            } else {
+                this.volume = 0.0F;
+            }
         }
     }
 }

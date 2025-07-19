@@ -2,7 +2,10 @@ package mctmods.immersivetech.common.data.generators;
 
 import blusunrize.immersiveengineering.api.IETags;
 import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
-import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.*;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.AdvancedCokeOvenRecipeBuilder;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.BoilerRecipeBuilder;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.GasTurbineRecipeBuilder;
+import mctmods.immersivetech.common.blocks.multiblocks.recipe.builder.SteamTurbineRecipeBuilder;
 import mctmods.immersivetech.core.lib.ITLib;
 import mctmods.immersivetech.core.registration.ITFluids;
 import mctmods.immersivetech.core.registration.ITTags;
@@ -14,7 +17,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +27,7 @@ import java.util.function.Consumer;
 
 public class ITRecipes extends RecipeProvider
 {
-    private final HashMap<String, Integer> PATH_COUNT = new HashMap<>();
+    private HashMap<String, Integer> PATH_COUNT = new HashMap<>();
 
     public ITRecipes(PackOutput pOutput)
     {
@@ -39,7 +42,6 @@ public class ITRecipes extends RecipeProvider
         recipesCoke(consumer);
         recipesBoiler(consumer);
         recipesTurbine(consumer);
-        recipesDistiller(consumer);
     }
 
     private void itemRecipes(Consumer<FinishedRecipe> consumer)
@@ -70,14 +72,21 @@ public class ITRecipes extends RecipeProvider
 
     private void recipesTurbine(@Nonnull Consumer<FinishedRecipe> out)
     {
-        SteamTurbineRecipeBuilder.builder(ITTags.fluidSteam, 25)
+        SteamTurbineRecipeBuilder.builder()
+                .addInput(ITTags.fluidSteam, 100)
+                .addOutput(ITFluids.STEAM_EXHAUST.getStill(), 100)
+                .setTime(1)
                 .build(out, toRL("steamturbine/steam"));
-        SteamTurbineRecipeBuilder.builder(ITTags.fluidSteamForge, 25)
+        SteamTurbineRecipeBuilder.builder()
+                .addInput(ITTags.fluidSteamForge, 100)
+                .addOutput(ITFluids.STEAM_EXHAUST.getStill(), 100)
+                .setTime(1)
                 .build(out, toRL("steamturbine/steam_forge"));
-        GasTurbineRecipeBuilder.builder(IETags.fluidBiodiesel, 25)
+        GasTurbineRecipeBuilder.builder()
+                .addInput(IETags.fluidBiodiesel, 160)
+                .addOutput(ITFluids.FLUE_GAS.getStill(), 1000)
+                .setTime(10)
                 .build(out, toRL("gas_turbine/biodiesel"));
-        GasTurbineRecipeBuilder.builder(IETags.fluidCreosote, 10)
-                .build(out, toRL("gas_turbine/creosote"));
     }
 
     private void recipesCoke(@Nonnull Consumer<FinishedRecipe> out)
@@ -97,13 +106,6 @@ public class ITRecipes extends RecipeProvider
                 .setOil(FluidType.BUCKET_VOLUME/4)
                 .setTime(600)
                 .build(out, toRL("cokeovenadv/charcoal"));
-    }
-
-    private void recipesDistiller(@Nonnull Consumer<FinishedRecipe> out)
-    {
-        DistillerRecipeBuilder.builder(ITFluids.DISTILLED_WATER.getStill(), 100)
-                .addInput(FluidTags.WATER, 100)
-                .build(out, toRL("distiller/distilled_water"));
     }
 
     private ResourceLocation toRL(String s)
