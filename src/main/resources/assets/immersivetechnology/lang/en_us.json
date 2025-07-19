@@ -3,20 +3,20 @@
   "language.code": "en_us",
   "language.region": "United States",
 
-  "manual.immersivetech.main": "Immersive Technology",
-  "manual.immersivetech.it_multiblocks": "Multiblocks",
+  "manual.immmersivetechnology.main": "Immersive Technology",
+  "manual.immmersivetechnology.it_multiblocks": "Multiblocks",
 
-  "block.immersivetech.coke_oven_advanced": "Advanced Coke Oven",
-  "block.immersivetech.boiler": "Boiler",
-  "block.immersivetech.alternator": "Alternator",
-  "block.immersivetech.steam_turbine": "Steam Turbine",
-  "block.immersivetech.gas_turbine": "Gas Turbine",
+  "block.immmersivetechnology.coke_oven_advanced": "Advanced Coke Oven",
+  "block.immmersivetechnology.boiler": "Boiler",
+  "block.immmersivetechnology.alternator": "Alternator",
+  "block.immmersivetechnology.steam_turbine": "Steam Turbine",
+  "block.immmersivetechnology.gas_turbine": "Gas Turbine",
 
-  "fluid_type.immersivetech.steam": "Low Pressure Steam",
-  "fluid_type.immersivetech.steam_exhaust": "Exhaust Steam",
+  "fluid_type.immmersivetechnology.steam": "Low Pressure Steam",
+  "fluid_type.immmersivetechnology.steam_exhaust": "Exhaust Steam",
 
-  "item.immersivetech.steam_bucket": "Steam Bucket",
-  "item.immersivetech.steam_exhaust_bucket": "Exhaust Steam Bucket",
+  "item.immmersivetechnology.steam_bucket": "Steam Bucket",
+  "item.immmersivetechnology.steam_exhaust_bucket": "Exhaust Steam Bucket",
 
   "desc.immersiveengineering.info.multiblock.IE:AdvancedCokeOven": "Advanced Coke Oven",
   "desc.immersiveengineering.info.multiblock.IE:Boiler": "Boiler"
