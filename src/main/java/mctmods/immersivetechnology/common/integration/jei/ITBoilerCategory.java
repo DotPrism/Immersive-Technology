@@ -1,7 +1,7 @@
 package mctmods.immersivetechnology.common.integration.jei;
 
 import com.igteam.immersivegeology.core.lib.IGLib;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.BoilerRecipe;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.BoilerRecipe;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawableStatic;

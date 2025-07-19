@@ -2,10 +2,10 @@ package mctmods.immersivetechnology.common.data.generators;
 
 import blusunrize.immersiveengineering.api.IETags;
 import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.builder.AdvancedCokeOvenRecipeBuilder;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.builder.BoilerRecipeBuilder;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.builder.GasTurbineRecipeBuilder;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.builder.SteamTurbineRecipeBuilder;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.builder.AdvancedCokeOvenRecipeBuilder;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.builder.BoilerRecipeBuilder;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.builder.GasTurbineRecipeBuilder;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.builder.SteamTurbineRecipeBuilder;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITFluids;
 import mctmods.immersivetechnology.core.registration.ITTags;

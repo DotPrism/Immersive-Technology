@@ -1,7 +1,7 @@
 package mctmods.immersivetechnology.core.registration;
 
 import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistration;
-import mctmods.immersivetechnology.common.blocks.multiblocks.logic.*;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.logic.*;
 
 public class ITMultiblockProvider
 {

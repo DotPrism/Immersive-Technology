@@ -1,11 +1,11 @@
 package mctmods.immersivetechnology.core.registration;
 
 import blusunrize.immersiveengineering.api.crafting.IERecipeTypes.TypeWithClass;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.*;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.serializer.AdvancedCokeOvenRecipeSerializer;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.serializer.BoilerRecipeSerializer;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.serializer.GasTurbineRecipeSerializer;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.serializer.SteamTurbineRecipeSerializer;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.*;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.AdvancedCokeOvenRecipeSerializer;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.BoilerRecipeSerializer;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.GasTurbineRecipeSerializer;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.SteamTurbineRecipeSerializer;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
