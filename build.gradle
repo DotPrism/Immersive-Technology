@@ -33,8 +33,8 @@ gradle.taskGraph.whenReady { graph ->
 }
 
 version = '0.1.0-a' + version_buildnumber
-group = 'mctmods.immersivetech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'immersivetech'
+group = 'mctmods.immersivetechnology' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'immersivetechnology'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 jar.enabled = true
@@ -130,7 +130,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             ideaModule project.name + ".main"
             mods {
-                immersivetech {
+                immersivetechnology {
                     source sourceSets.main
                 }
             }
@@ -144,13 +144,13 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'immersivetech'
+            property 'forge.enabledGameTestNamespaces', 'immersivetechnology'
 
             // Disable GUI by default, the IDE console can be used to enter commands
             arg '-nogui'
 
             mods {
-                immersivetech {
+                immersivetechnology {
                     source sourceSets.main
                 }
             }
@@ -165,12 +165,12 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'fml.earlyprogresswindow', 'false'
 
-            args '--mod', 'immersivetech', '--all', '--output', file('src/generated/resources/'), '--validate',
+            args '--mod', 'immersivetechnology', '--all', '--output', file('src/generated/resources/'), '--validate',
                     '--existing', sourceSets.main.resources.srcDirs[0]
             ideaModule project.name+".datagen"
 
             mods {
-                immersivetech {
+                immersivetechnology {
                     source sourceSets.main
                     source sourceSets.datagen
                 }
@@ -181,12 +181,12 @@ minecraft {
             property 'forge.logging.markers', ''
 
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'immersivetech'
+            property 'forge.enabledGameTestNamespaces', 'immersivetechnology'
 
             ideaModule project.name + ".gametest"
 
             mods {
-                immersivetech {
+                immersivetechnology {
                     source sourceSets.main
                     source sourceSets.gametest
                 }

@@ -1,5 +1,0 @@
-{
-  "parent": "forge:item/bucket",
-  "fluid": "immersivetech:flue_gas",
-  "loader": "forge:fluid_container"
-}
