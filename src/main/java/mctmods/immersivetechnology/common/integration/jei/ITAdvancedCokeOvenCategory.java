@@ -2,7 +2,7 @@ package mctmods.immersivetechnology.common.integration.jei;
 
 import blusunrize.immersiveengineering.common.register.IEFluids;
 import blusunrize.immersiveengineering.common.util.compat.jei.JEIHelper;
-import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.AdvancedCokeOvenRecipe;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.AdvancedCokeOvenRecipe;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
 import mezz.jei.api.forge.ForgeTypes;
