@@ -1,4 +1,4 @@
-package mctmods.immersivetechnology.common.blocks;
+package mctmods.immersivetechnology.common.blocks.stone;
 
 import net.minecraft.world.level.block.Block;
 

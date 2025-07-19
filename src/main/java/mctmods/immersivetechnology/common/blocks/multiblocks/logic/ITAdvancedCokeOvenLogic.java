@@ -11,7 +11,7 @@ import blusunrize.immersiveengineering.common.gui.sync.GetterAndSetter;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.inventory.WrappingItemHandler;
 import blusunrize.immersiveengineering.common.util.sound.MultiblockSound;
-import mctmods.immersivetechnology.common.blocks.CokeOvenPreheaterBlockEntity;
+import mctmods.immersivetechnology.common.blocks.metal.CokeOvenPreheaterBlockEntity;
 import mctmods.immersivetechnology.common.blocks.multiblocks.helper.ITFurnaceHandler;
 import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.AdvancedCokeOvenRecipe;
 import mctmods.immersivetechnology.common.blocks.multiblocks.shapes.AdvCokeOvenShape;

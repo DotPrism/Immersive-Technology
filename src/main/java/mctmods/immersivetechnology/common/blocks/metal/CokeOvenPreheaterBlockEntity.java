@@ -1,4 +1,4 @@
-package mctmods.immersivetechnology.common.blocks;
+package mctmods.immersivetechnology.common.blocks.metal;
 
 import blusunrize.immersiveengineering.ImmersiveEngineering;
 import blusunrize.immersiveengineering.api.IEProperties;

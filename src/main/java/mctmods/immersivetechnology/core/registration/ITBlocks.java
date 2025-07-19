@@ -1,6 +1,6 @@
 package mctmods.immersivetechnology.core.registration;
 
-import mctmods.immersivetechnology.common.blocks.CokeOvenPreheaterBlock;
+import mctmods.immersivetechnology.common.blocks.metal.CokeOvenPreheaterBlock;
 import mctmods.immersivetechnology.common.blocks.helper.ITBlockBase;
 import mctmods.immersivetechnology.common.items.helper.BlockItemIT;
 import mctmods.immersivetechnology.core.lib.ITLib;

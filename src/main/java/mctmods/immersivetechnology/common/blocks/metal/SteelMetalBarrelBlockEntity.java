@@ -1,4 +1,4 @@
-package mctmods.immersivetechnology.common.blocks;
+package mctmods.immersivetechnology.common.blocks.metal;
 
 import blusunrize.immersiveengineering.common.blocks.wooden.WoodenBarrelBlockEntity;
 import net.minecraft.core.BlockPos;

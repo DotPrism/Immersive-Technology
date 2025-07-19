@@ -1,13 +1,12 @@
-package mctmods.immersivetechnology.common.blocks;
+package mctmods.immersivetechnology.common.blocks.metal;
 
-import blusunrize.immersiveengineering.common.blocks.IEEntityBlock;
+import mctmods.immersivetechnology.common.blocks.helper.ITEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.function.BiFunction;
 
-public class CreativeBarrelBlock extends IEEntityBlock<CreativeBarrelBlockEntity>
-{
+public class CreativeBarrelBlock extends ITEntityBlock<CreativeBarrelBlockEntity> {
     public CreativeBarrelBlock(BiFunction<BlockPos, BlockState, CreativeBarrelBlockEntity> makeEntity, Properties blockProps) {
         super(makeEntity, blockProps);
     }

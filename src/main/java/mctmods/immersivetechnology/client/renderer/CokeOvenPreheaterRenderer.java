@@ -3,7 +3,7 @@ package mctmods.immersivetechnology.client.renderer;
 import blusunrize.immersiveengineering.client.utils.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mctmods.immersivetechnology.client.models.ITDynamicModel;
-import mctmods.immersivetechnology.common.blocks.CokeOvenPreheaterBlockEntity;
+import mctmods.immersivetechnology.common.blocks.metal.CokeOvenPreheaterBlockEntity;
 import mctmods.immersivetechnology.core.ITClientConfig;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
