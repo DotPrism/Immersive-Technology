@@ -12,8 +12,6 @@ out
 *.iws
 *.iml
 .idea
-.idea/*
-/.idea/
 !.idea/codeStyles
 !.idea/copyright
 classes
@@ -21,8 +19,6 @@ classes
 # gradle
 build
 .gradle
-.gradle/*
-/.gradle/
 
 # other
 eclipse
@@ -42,3 +38,5 @@ docsOut/
 
 # generated cache
 /src/generated/resources/.cache
+
+*/Thumbs.db
