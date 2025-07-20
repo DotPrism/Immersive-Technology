@@ -101,6 +101,11 @@ public class ITMultiblockProvider {
                     .gui(ITMenuTypes.BOILER_MENU)
                     .redstone(s -> s.rsState, ITBoilerLogic.REDSTONE_POS)
                     .build();
+    public static final MultiblockRegistration<ITSolarTowerLogic.State> SOLAR_TOWER =
+            metal(new ITSolarTowerLogic(), "solar_tower")
+                    .structure(() -> getMBTemplate.apply("solar_tower"))
+                    //.gui(ITMenuTypes.SOLAR_TOWER_MENU)
+                    .build();
     public static final MultiblockRegistration<ITAlternatorLogic.State> ALTERNATOR =
             metal(new ITAlternatorLogic(), "alternator")
                     .structure(() -> getMBTemplate.apply("alternator"))
