@@ -23,7 +23,10 @@ public class ITItemModelProvider extends ItemModelProvider {
 
     private void generateGeneratedItem() { withExistingParent("it_formation_tool", mcLoc("item/generated")).texture("layer0", modLoc("item/" + "it_formation_tool")); }
 
-    private void createBucket(ITFluids.FluidEntry entry) { withExistingParent(name(entry.getBucket()), forgeLoc()).customLoader(DynamicFluidContainerModelBuilder::begin).fluid(entry.getStill()); }
+    private void createBucket(ITFluids.FluidEntry entry) {
+        boolean isGas = entry.type().get().getDensity() < 0;
+        withExistingParent(name(entry.getBucket()), forgeLoc()).customLoader(DynamicFluidContainerModelBuilder::begin).fluid(entry.getStill()).flipGas(isGas);
+    }
 
     @Override
     protected void registerModels() {

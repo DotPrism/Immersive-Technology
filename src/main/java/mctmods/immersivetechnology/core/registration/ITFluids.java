@@ -4,19 +4,25 @@ import com.google.common.collect.ImmutableList;
 import mctmods.immersivetechnology.common.fluids.ITFluid;
 import mctmods.immersivetechnology.common.fluids.ITFluidBlock;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -28,7 +34,6 @@ import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -46,17 +51,17 @@ public class ITFluids {
     public static Function<String, Fluid> getFluid = (key) -> FLUID_REGISTRY_MAP.get(key).get();
 
     public static final ITFluids.FluidEntry STEAM = FluidEntry.make(
-            "steam", 0, rl("block/fluid/fluid_still"), rl("block/fluid/fluid_flowing"),
+            "steam", 0, rl("block/fluid/fluid_gas_still"), rl("block/fluid/fluid_gas_flowing"),
             props -> { props.density(-1000).viscosity(200); }, 0xFFFFFFFF
     );
 
     public static final ITFluids.FluidEntry STEAM_EXHAUST = FluidEntry.make(
-            "steam_exhaust", 0, rl("block/fluid/fluid_still"), rl("block/fluid/fluid_flowing"),
+            "steam_exhaust", 0, rl("block/fluid/fluid_gas_still"), rl("block/fluid/fluid_gas_flowing"),
             props -> { props.density(-1000).viscosity(200); }, 0xFFC0C0C0
     );
 
     public static final ITFluids.FluidEntry FLUE_GAS = FluidEntry.make(
-            "flue_gas", 0, rl("block/fluid/fluid_still"), rl("block/fluid/fluid_flowing"),
+            "flue_gas", 0, rl("block/fluid/fluid_gas_still"), rl("block/fluid/fluid_gas_flowing"),
             props -> { props.density(-1000).viscosity(200); }, 0xFF808080
     );
 
@@ -95,19 +100,19 @@ public class ITFluids {
         }
 
         private static FluidType makeTypeWithTextures(FluidType.Properties builder, ResourceLocation stillTex, ResourceLocation flowingTex, int tintColor) { return new FluidType(builder) {
+            @Override
+            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) { consumer.accept(new IClientFluidTypeExtensions() {
                 @Override
-                public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) { consumer.accept(new IClientFluidTypeExtensions() {
-                        @Override
-                        public ResourceLocation getStillTexture() { return stillTex; }
+                public ResourceLocation getStillTexture() { return stillTex; }
 
-                        @Override
-                        public ResourceLocation getFlowingTexture() { return flowingTex; }
+                @Override
+                public ResourceLocation getFlowingTexture() { return flowingTex; }
 
-                        @Override
-                        public int getTintColor() { return tintColor; }
-                    });
-                }
-            };
+                @Override
+                public int getTintColor() { return tintColor; }
+            });
+            }
+        };
         }
 
         public ITFluid getFlowing() { return flowing.get(); }
@@ -119,12 +124,30 @@ public class ITFluids {
         public BucketItem getBucket() { return bucket.get(); }
 
         private static BucketItem makeBucket(RegistryObject<ITFluid> still, int burnTime) { return new BucketItem(still, new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET)) {
-                @Override
-                public @NotNull ICapabilityProvider initCapabilities(@NotNull ItemStack stack, @Nullable CompoundTag nbt) { return new FluidBucketWrapper(stack); }
+            @Override
+            public @NotNull ICapabilityProvider initCapabilities(@NotNull ItemStack stack, @Nullable CompoundTag nbt) { return new FluidBucketWrapper(stack); }
 
-                @Override
-                public int getBurnTime(ItemStack itemStack, RecipeType<?> type) { return burnTime; }
-            };
+            @Override
+            public int getBurnTime(ItemStack itemStack, RecipeType<?> type) { return burnTime; }
+
+            public boolean emptyContents(@Nullable Player player, Level level, BlockPos pos, @Nullable HitResult target) {
+                boolean result;
+                if (target == null) {
+                    result = super.emptyContents(player, level, pos, null);
+                } else if (target instanceof BlockHitResult blockHitResult) {
+                    result = super.emptyContents(player, level, pos, blockHitResult);
+                } else {
+                    return false;
+                }
+                if (result) {
+                    FluidState placedState = level.getFluidState(pos);
+                    if (placedState.getType().getFluidType().getDensity() < 0) {
+                        level.scheduleTick(pos, placedState.getType(), 100);  // Schedule dissipation after 5 seconds for gaseous sources
+                    }
+                }
+                return result;
+            }
+        };
         }
 
         public RegistryObject<ITFluid> getStillGetter() { return still; }
