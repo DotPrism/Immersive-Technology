@@ -1,6 +1,14 @@
 package mctmods.immersivetechnology.common.fluids;
 
+import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.shorts.Short2BooleanMap;
+import it.unimi.dsi.fastutil.shorts.Short2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import mctmods.immersivetechnology.core.registration.ITFluids;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
@@ -16,40 +24,28 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import net.minecraft.world.phys.Vec3;
-import com.google.common.collect.Maps;
-import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.shorts.Short2BooleanMap;
-import it.unimi.dsi.fastutil.shorts.Short2BooleanOpenHashMap;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
-import java.util.Map;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.IceBlock;
-import net.minecraft.world.level.block.LiquidBlockContainer;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import com.mojang.datafixers.util.Pair;
+import javax.annotation.Nonnull;
 
 public class ITFluid extends FlowingFluid {
     private static ITFluids.FluidEntry entryStatic;
@@ -73,29 +69,19 @@ public class ITFluid extends FlowingFluid {
         return result;
     }
 
-    public ITFluid(ITFluids.FluidEntry entry) {
-        this.entry = entry;
-    }
+    public ITFluid(ITFluids.FluidEntry entry) { this.entry = entry; }
 
-    protected boolean isGaseous() {
-        return getFluidType().getDensity() < 0;
-    }
+    protected boolean isGaseous() { return getFluidType().getDensity() < 0; }
 
     @Nonnull
     @Override
-    public Item getBucket() {
-        return entry.getBucket();
-    }
+    public Item getBucket() { return entry.getBucket(); }
 
     @Override
-    protected boolean canBeReplacedWith(@NotNull FluidState fluidState, @NotNull BlockGetter blockReader, @NotNull BlockPos pos, @NotNull Fluid fluidIn, @NotNull Direction direction) {
-        return (isGaseous() ? direction == Direction.UP : direction == Direction.DOWN) && !isSame(fluidIn);
-    }
+    protected boolean canBeReplacedWith(@NotNull FluidState fluidState, @NotNull BlockGetter blockReader, @NotNull BlockPos pos, @NotNull Fluid fluidIn, @NotNull Direction direction) { return (isGaseous() ? direction == Direction.UP : direction == Direction.DOWN) && !isSame(fluidIn); }
 
     @Override
-    public boolean isSame(@Nonnull Fluid fluidIn) {
-        return fluidIn == entry.getStill() || fluidIn == entry.getFlowing();
-    }
+    public boolean isSame(@Nonnull Fluid fluidIn) { return fluidIn == entry.getStill() || fluidIn == entry.getFlowing(); }
 
     @Override
     public int getTickDelay(@NotNull LevelReader p_205569_1_) {
@@ -105,88 +91,62 @@ public class ITFluid extends FlowingFluid {
     }
 
     @Override
-    protected float getExplosionResistance() {
-        return 100;
-    }
+    protected float getExplosionResistance() { return 100; }
 
     @Override
     protected void createFluidStateDefinition(@NotNull StateDefinition.Builder<Fluid, FluidState> builder) {
         super.createFluidStateDefinition(builder);
-        for (Property<?> p : (entry == null ? entryStatic : entry).properties()) {
-            builder.add(p);
-        }
+        for (Property<?> p : (entry == null ? entryStatic : entry).properties()) { builder.add(p); }
     }
 
     @Override
     protected @NotNull BlockState createLegacyBlock(@NotNull FluidState state) {
         BlockState result = entry.getBlock().defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
-        for (Property<?> prop : entry.properties()) {
-            result = ITFluidBlock.withCopiedValue(prop, result, state);
-        }
+        for (Property<?> prop : entry.properties()) { result = ITFluidBlock.withCopiedValue(prop, result, state); }
         return result;
     }
 
     @Override
-    public boolean isSource(FluidState state) {
-        return state.getType() == entry.getStill();
-    }
+    public boolean isSource(FluidState state) { return state.getType() == entry.getStill(); }
 
     @Override
     public int getAmount(@NotNull FluidState state) {
-        if (isSource(state)) {
-            return 8;
-        } else {
-            return state.getValue(LEVEL);
-        }
+        if (isSource(state)) { return 8; }
+        else { return state.getValue(LEVEL); }
     }
 
     @Override
-    public @NotNull FluidType getFluidType() {
-        return entry.type().get();
-    }
+    public @NotNull FluidType getFluidType() { return entry.type().get(); }
 
     @Nonnull
     @Override
-    public Fluid getFlowing() {
-        return entry.getFlowing();
-    }
+    public Fluid getFlowing() { return entry.getFlowing(); }
 
     @Nonnull
     @Override
-    public Fluid getSource() {
-        return entry.getStill();
-    }
+    public Fluid getSource() { return entry.getStill(); }
 
     @Override
-    public boolean canConvertToSource(@NotNull Level level) {
-        return false;
-    }
+    public boolean canConvertToSource(@NotNull Level level) { return false; }
 
     @Override
-    protected void beforeDestroyingBlock(@NotNull LevelAccessor iWorld, @NotNull BlockPos blockPos, @NotNull BlockState blockState) {
-    }
+    protected void beforeDestroyingBlock(@NotNull LevelAccessor iWorld, @NotNull BlockPos blockPos, @NotNull BlockState blockState) { }
 
     @Override
-    protected int getSlopeFindDistance(@NotNull LevelReader iWorldReader) {
-        return 4;
-    }
+    protected int getSlopeFindDistance(@NotNull LevelReader iWorldReader) { return 4; }
 
     @Override
-    protected int getDropOff(@NotNull LevelReader iWorldReader) {
-        return 1;
-    }
+    protected int getDropOff(@NotNull LevelReader iWorldReader) { return 1; }
 
     @Override
-    public void tick(Level pLevel, BlockPos pPos, FluidState pState) {
+    public void tick(@NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull FluidState pState) {
         super.tick(pLevel, pPos, pState);
-        if (!pLevel.isClientSide && isGaseous() && pState.isSource()) {
-            pLevel.setBlock(pPos, Blocks.AIR.defaultBlockState(), 3);
-        }
+        if (!pLevel.isClientSide && isGaseous() && pState.isSource()) { pLevel.setBlock(pPos, Blocks.AIR.defaultBlockState(), 3); }
     }
 
     // Copied and modified from FlowingFluid
     @Override
-    protected void spread(Level pLevel, BlockPos pPos, FluidState pState) {
+    protected void spread(@NotNull Level pLevel, @NotNull BlockPos pPos, FluidState pState) {
         if (!pState.isEmpty()) {
             BlockState blockstate = pLevel.getBlockState(pPos);
             Direction gravityDir = isGaseous() ? Direction.UP : Direction.DOWN;
@@ -195,21 +155,16 @@ public class ITFluid extends FlowingFluid {
             FluidState fluidstate = this.getNewLiquid(pLevel, blockpos, blockstate1);
             if (this.canSpreadTo(pLevel, pPos, blockstate, gravityDir, blockpos, blockstate1, pLevel.getFluidState(blockpos), fluidstate.getType())) {
                 this.spreadTo(pLevel, blockpos, blockstate1, gravityDir, fluidstate);
-                if (this.mySourceNeighborCount(pLevel, pPos) >= 3) {
-                    this.mySpreadToSides(pLevel, pPos, pState, blockstate);
-                }
-            } else if (pState.isSource() || !this.myIsHole(pLevel, fluidstate.getType(), pPos, blockstate, blockpos, blockstate1)) {
-                this.mySpreadToSides(pLevel, pPos, pState, blockstate);
+                if (this.mySourceNeighborCount(pLevel, pPos) >= 3) { this.mySpreadToSides(pLevel, pPos, pState, blockstate); }
             }
+            else if (pState.isSource() || !this.myIsHole(pLevel, fluidstate.getType(), pPos, blockstate, blockpos, blockstate1)) { this.mySpreadToSides(pLevel, pPos, pState, blockstate); }
         }
     }
 
     // Copied from FlowingFluid.spreadToSides
     private void mySpreadToSides(Level pLevel, BlockPos pPos, FluidState pFluidState, BlockState pBlockState) {
         int i = pFluidState.getAmount() - this.getDropOff(pLevel);
-        if (pFluidState.getValue(FALLING)) {
-            i = 7;
-        }
+        if (pFluidState.getValue(FALLING)) { i = 7; }
 
         if (i > 0) {
             Map<Direction, FluidState> map = this.getSpread(pLevel, pPos, pBlockState);
@@ -219,9 +174,7 @@ public class ITFluid extends FlowingFluid {
                 FluidState fluidstate = entry.getValue();
                 BlockPos blockpos = pPos.relative(direction);
                 BlockState blockstate = pLevel.getBlockState(blockpos);
-                if (this.myCanPassThrough(pLevel, fluidstate.getType(), pPos, pBlockState, direction, blockpos, blockstate, pLevel.getFluidState(blockpos))) {
-                    this.spreadTo(pLevel, blockpos, blockstate, direction, fluidstate);
-                }
+                if (this.myCanPassThrough(pLevel, fluidstate.getType(), pPos, pBlockState, direction, blockpos, blockstate, pLevel.getFluidState(blockpos))) { this.spreadTo(pLevel, blockpos, blockstate, direction, fluidstate); }
             }
         }
     }
@@ -240,10 +193,7 @@ public class ITFluid extends FlowingFluid {
             BlockState blockstate = pLevel.getBlockState(blockpos);
             FluidState fluidstate = blockstate.getFluidState();
             if (fluidstate.getType().isSame(this) && this.myCanPassThroughWall(direction, pLevel, pPos, pBlockState, blockpos, blockstate)) {
-                if (fluidstate.isSource() && net.minecraftforge.event.ForgeEventFactory.canCreateFluidSource(pLevel, blockpos, blockstate, fluidstate.canConvertToSource(pLevel, blockpos))) {
-                    ++j;
-                }
-
+                if (fluidstate.isSource() && net.minecraftforge.event.ForgeEventFactory.canCreateFluidSource(pLevel, blockpos, blockstate, fluidstate.canConvertToSource(pLevel, blockpos))) { ++j; }
                 i = Math.max(i, fluidstate.getAmount());
             }
         }
@@ -252,17 +202,14 @@ public class ITFluid extends FlowingFluid {
             BlockPos floorPos = pPos.relative(gravityDir);
             BlockState blockstate1 = pLevel.getBlockState(floorPos);
             FluidState fluidstate1 = blockstate1.getFluidState();
-            if (blockstate1.isSolid() || this.myIsSourceBlockOfThisType(fluidstate1)) {
-                return this.getSource(false);
-            }
+            if (blockstate1.isSolid() || this.myIsSourceBlockOfThisType(fluidstate1)) { return this.getSource(false); }
         }
 
         BlockPos blockpos1 = pPos.relative(antiGravityDir);
         BlockState blockstate2 = pLevel.getBlockState(blockpos1);
         FluidState fluidstate2 = blockstate2.getFluidState();
-        if (!fluidstate2.isEmpty() && fluidstate2.getType().isSame(this) && this.myCanPassThroughWall(antiGravityDir, pLevel, pPos, pBlockState, blockpos1, blockstate2)) {
-            return this.getFlowing(8, true);
-        } else {
+        if (!fluidstate2.isEmpty() && fluidstate2.getType().isSame(this) && this.myCanPassThroughWall(antiGravityDir, pLevel, pPos, pBlockState, blockpos1, blockstate2)) { return this.getFlowing(8, true); }
+        else {
             int k = i - this.getDropOff(pLevel);
             return k <= 0 ? Fluids.EMPTY.defaultFluidState() : this.getFlowing(k, false);
         }
@@ -270,7 +217,7 @@ public class ITFluid extends FlowingFluid {
 
     // Copied and modified from FlowingFluid.getFlow
     @Override
-    public Vec3 getFlow(BlockGetter pBlockReader, BlockPos pPos, FluidState pFluidState) {
+    public @NotNull Vec3 getFlow(@NotNull BlockGetter pBlockReader, @NotNull BlockPos pPos, @NotNull FluidState pFluidState) {
         double d0 = 0.0D;
         double d1 = 0.0D;
         MutableBlockPos mutable = new MutableBlockPos();
@@ -287,14 +234,10 @@ public class ITFluid extends FlowingFluid {
                         FluidState fluidstate1 = pBlockReader.getFluidState(blockpos);
                         if (this.myAffectsFlow(fluidstate1)) {
                             f = fluidstate1.getOwnHeight();
-                            if (f > 0.0F) {
-                                f1 = pFluidState.getOwnHeight() - (f - 0.8888889F);
-                            }
+                            if (f > 0.0F) { f1 = pFluidState.getOwnHeight() - (f - 0.8888889F); }
                         }
                     }
-                } else if (f > 0.0F) {
-                    f1 = pFluidState.getOwnHeight() - f;
-                }
+                } else if (f > 0.0F) { f1 = pFluidState.getOwnHeight() - f; }
 
                 if (f1 != 0.0F) {
                     d0 += (double) ((float) direction.getStepX() * f1);
@@ -320,9 +263,7 @@ public class ITFluid extends FlowingFluid {
     }
 
     // Copied from FlowingFluid.affectsFlow
-    private boolean myAffectsFlow(FluidState pState) {
-        return pState.isEmpty() || pState.getType().isSame(this);
-    }
+    private boolean myAffectsFlow(FluidState pState) { return pState.isEmpty() || pState.getType().isSame(this); }
 
     // Copied from FlowingFluid.sourceNeighborCount
     private int mySourceNeighborCount(LevelReader pLevel, BlockPos pPos) {
@@ -331,9 +272,7 @@ public class ITFluid extends FlowingFluid {
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos blockpos = pPos.relative(direction);
             FluidState fluidstate = pLevel.getFluidState(blockpos);
-            if (this.myIsSourceBlockOfThisType(fluidstate)) {
-                ++i;
-            }
+            if (this.myIsSourceBlockOfThisType(fluidstate)) { ++i; }
         }
 
         return i;
@@ -342,11 +281,8 @@ public class ITFluid extends FlowingFluid {
     // Copied and modified from FlowingFluid.isWaterHole
     private boolean myIsHole(BlockGetter pLevel, Fluid pFluid, BlockPos pPos, BlockState pState, BlockPos pTargetPos, BlockState pTargetState) {
         Direction dir = isGaseous() ? Direction.UP : Direction.DOWN;
-        if (!this.myCanPassThroughWall(dir, pLevel, pPos, pState, pTargetPos, pTargetState)) {
-            return false;
-        } else {
-            return pTargetState.getFluidState().getType().isSame(this) || this.myCanHoldFluid(pLevel, pTargetPos, pTargetState, pFluid);
-        }
+        if (!this.myCanPassThroughWall(dir, pLevel, pPos, pState, pTargetPos, pTargetState)) { return false; }
+        else { return pTargetState.getFluidState().getType().isSame(this) || this.myCanHoldFluid(pLevel, pTargetPos, pTargetState, pFluid); }
     }
 
     // Copied from FlowingFluid.canHoldFluid
@@ -357,23 +293,15 @@ public class ITFluid extends FlowingFluid {
         } else if (!(block instanceof net.minecraft.world.level.block.DoorBlock) && !pState.is(net.minecraft.tags.BlockTags.SIGNS) && !pState.is(Blocks.LADDER) && !pState.is(Blocks.SUGAR_CANE) && !pState.is(Blocks.BUBBLE_COLUMN)) {
             if (!pState.is(Blocks.NETHER_PORTAL) && !pState.is(Blocks.END_PORTAL) && !pState.is(Blocks.END_GATEWAY) && !pState.is(Blocks.STRUCTURE_VOID)) {
                 return !pState.blocksMotion();
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+            } else { return false; }
+        } else { return false; }
     }
 
     // Copied from FlowingFluid.isSourceBlockOfThisType
-    private boolean myIsSourceBlockOfThisType(FluidState pState) {
-        return pState.getType().isSame(this) && pState.isSource();
-    }
+    private boolean myIsSourceBlockOfThisType(FluidState pState) { return pState.getType().isSame(this) && pState.isSource(); }
 
     // Copied from FlowingFluid.canPassThrough
-    private boolean myCanPassThrough(BlockGetter pLevel, Fluid pFluid, BlockPos pPos, BlockState pState, Direction pDirection, BlockPos pTargetPos, BlockState pTargetState, FluidState pTargetFluid) {
-        return !this.myIsSourceBlockOfThisType(pTargetFluid) && this.myCanPassThroughWall(pDirection, pLevel, pPos, pState, pTargetPos, pTargetState) && this.myCanHoldFluid(pLevel, pTargetPos, pTargetState, pFluid);
-    }
+    private boolean myCanPassThrough(BlockGetter pLevel, Fluid pFluid, BlockPos pPos, BlockState pState, Direction pDirection, BlockPos pTargetPos, BlockState pTargetState, FluidState pTargetFluid) { return !this.myIsSourceBlockOfThisType(pTargetFluid) && this.myCanPassThroughWall(pDirection, pLevel, pPos, pState, pTargetPos, pTargetState) && this.myCanHoldFluid(pLevel, pTargetPos, pTargetState, pFluid); }
 
     // Copied from FlowingFluid.getSlopeDistance
     private int myGetSlopeDistance(LevelReader pLevel, BlockPos pPos, int pDist, Direction pOppositeDir, BlockState pState, BlockPos pOrigin, Short2ObjectMap<Pair<BlockState, FluidState>> pStateCache, Short2BooleanMap pHoleCache) {
@@ -395,9 +323,7 @@ public class ITFluid extends FlowingFluid {
                         BlockState blockstate1 = pLevel.getBlockState(blockpos1);
                         return this.myIsHole(pLevel, this.getFlowing(), blockpos, blockstate, blockpos1, blockstate1);
                     });
-                    if (flag) {
-                        return pDist;
-                    }
+                    if (flag) { return pDist; }
 
                     if (pDist < this.getSlopeFindDistance(pLevel)) {
                         int j = this.myGetSlopeDistance(pLevel, blockpos, pDist + 1, direction.getOpposite(), blockstate, pOrigin, pStateCache, pHoleCache);
@@ -437,15 +363,10 @@ public class ITFluid extends FlowingFluid {
                     return this.myIsHole(pLevel, this.getFlowing(), blockpos, blockstate, blockpos1, blockstate1);
                 });
                 int j;
-                if (flag) {
-                    j = 0;
-                } else {
-                    j = this.myGetSlopeDistance(pLevel, blockpos, 1, direction.getOpposite(), blockstate, pPos, short2objectmap, short2booleanmap);
-                }
+                if (flag) { j = 0; }
+                else { j = this.myGetSlopeDistance(pLevel, blockpos, 1, direction.getOpposite(), blockstate, pPos, short2objectmap, short2booleanmap); }
 
-                if (j < i) {
-                    map.clear();
-                }
+                if (j < i) { map.clear(); }
 
                 if (j <= i) {
                     map.put(direction, fluidstate1);
@@ -460,31 +381,22 @@ public class ITFluid extends FlowingFluid {
     // Copied from FlowingFluid.canPassThroughWall
     private boolean myCanPassThroughWall(Direction pDirection, BlockGetter pLevel, BlockPos pPos, BlockState pState, BlockPos pTargetPos, BlockState pTargetState) {
         Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2bytelinkedopenhashmap;
-        if (!pState.getBlock().hasDynamicShape() && !pTargetState.getBlock().hasDynamicShape()) {
-            object2bytelinkedopenhashmap = OCCLUSION_CACHE.get();
-        } else {
-            object2bytelinkedopenhashmap = null;
-        }
+        if (!pState.getBlock().hasDynamicShape() && !pTargetState.getBlock().hasDynamicShape()) { object2bytelinkedopenhashmap = OCCLUSION_CACHE.get(); }
+        else { object2bytelinkedopenhashmap = null; }
 
         Block.BlockStatePairKey block$blockstatepairkey;
         if (object2bytelinkedopenhashmap != null) {
             block$blockstatepairkey = new Block.BlockStatePairKey(pState, pTargetState, pDirection);
             byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(block$blockstatepairkey);
-            if (b0 != 127) {
-                return b0 != 0;
-            }
-        } else {
-            block$blockstatepairkey = null;
+            if (b0 != 127) { return b0 != 0; }
         }
+        else { block$blockstatepairkey = null; }
 
         VoxelShape voxelshape1 = pState.getCollisionShape(pLevel, pPos);
         VoxelShape voxelshape = pTargetState.getCollisionShape(pLevel, pTargetPos);
         boolean flag = !Shapes.mergedFaceOccludes(voxelshape1, voxelshape, pDirection);
         if (object2bytelinkedopenhashmap != null) {
-            if (object2bytelinkedopenhashmap.size() == CACHE_SIZE) {
-                object2bytelinkedopenhashmap.removeLastByte();
-            }
-
+            if (object2bytelinkedopenhashmap.size() == CACHE_SIZE) { object2bytelinkedopenhashmap.removeLastByte(); }
             object2bytelinkedopenhashmap.putAndMoveToFirst(block$blockstatepairkey, (byte) (flag ? 1 : 0));
         }
 
@@ -498,14 +410,10 @@ public class ITFluid extends FlowingFluid {
         return (short) ((i + 128 & 255) << 8 | j + 128 & 255);
     }
 
-    public static Consumer<FluidType.Properties> createBuilder(int density, int viscosity) {
-        return builder -> builder.viscosity(viscosity).density(density);
-    }
+    public static Consumer<FluidType.Properties> createBuilder(int density, int viscosity) { return builder -> builder.viscosity(viscosity).density(density); }
 
     public static class Flowing extends ITFluid {
-        public Flowing(ITFluids.FluidEntry entry) {
-            super(entry);
-        }
+        public Flowing(ITFluids.FluidEntry entry) { super(entry); }
 
         @Override
         protected void createFluidStateDefinition(@NotNull StateDefinition.Builder<Fluid, FluidState> builder) {
@@ -516,21 +424,15 @@ public class ITFluid extends FlowingFluid {
 
     public static class EntityFluidSerializer implements EntityDataSerializer<FluidStack> {
         @Override
-        public void write(FriendlyByteBuf buf, @Nonnull FluidStack value) {
-            buf.writeFluidStack(value);
-        }
+        public void write(FriendlyByteBuf buf, @Nonnull FluidStack value) { buf.writeFluidStack(value); }
 
         @Nonnull
         @Override
-        public FluidStack read(FriendlyByteBuf buf) {
-            return buf.readFluidStack();
-        }
+        public FluidStack read(FriendlyByteBuf buf) { return buf.readFluidStack(); }
 
         @Nonnull
         @Override
-        public FluidStack copy(FluidStack value) {
-            return value.copy();
-        }
+        public FluidStack copy(FluidStack value) { return value.copy(); }
     }
 
     public static final DispenseItemBehavior BUCKET_DISPENSE_BEHAVIOR = new DefaultDispenseItemBehavior() {
@@ -543,13 +445,10 @@ public class ITFluid extends FlowingFluid {
             if (bucketitem.emptyContents(null, world, blockpos, null)) {
                 bucketitem.checkExtraContent(null, world, stack, blockpos);
                 FluidState placedState = world.getFluidState(blockpos);
-                if (placedState.getType().getFluidType().getDensity() < 0) {
-                    world.scheduleTick(blockpos, placedState.getType(), 100);  // Schedule dissipation after 5 seconds for gaseous sources
-                }
+                if (placedState.getType().getFluidType().getDensity() < 0) { world.scheduleTick(blockpos, placedState.getType(), 100); }  // Schedule dissipation after 5 seconds for gaseous sources
                 return new ItemStack(Items.BUCKET);
-            } else {
-                return this.defaultBehavior.dispense(source, stack);
             }
+            else { return this.defaultBehavior.dispense(source, stack); }
         }
     };
 }
