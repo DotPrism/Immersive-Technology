@@ -2,10 +2,7 @@ package mctmods.immersivetechnology.core.registration;
 
 import blusunrize.immersiveengineering.api.crafting.IERecipeTypes.TypeWithClass;
 import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.*;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.AdvancedCokeOvenRecipeSerializer;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.BoilerRecipeSerializer;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.GasTurbineRecipeSerializer;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.SteamTurbineRecipeSerializer;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.serializer.*;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
@@ -28,12 +25,14 @@ public class ITRecipeTypes
     public static final TypeWithClass<BoilerRecipe> BOILER = register("boiler", BoilerRecipe.class);
     public static final TypeWithClass<SteamTurbineRecipe> STEAM_TURBINE = register("steam_turbine", SteamTurbineRecipe.class);
     public static final TypeWithClass<GasTurbineRecipe> GAS_TURBINE = register("gas_turbine", GasTurbineRecipe.class);
+    public static final TypeWithClass<SolarTowerRecipe> SOLAR_TOWER = register("solar_tower", SolarTowerRecipe.class);
     public static final TypeWithClass<? extends Recipe<?>> ADV_COKE_OVEN_FUEL = register("coke_oven_advanced_fuel", AdvancedCokeOvenFuel.class);
 
     static
     {
         AdvancedCokeOvenRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("coke_oven_advanced", AdvancedCokeOvenRecipeSerializer::new);
         BoilerRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("boiler", BoilerRecipeSerializer::new);
+        SolarTowerRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("boiler", SolarTowerRecipeSerializer::new);
         SteamTurbineRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("steam_turbine", SteamTurbineRecipeSerializer::new);
         GasTurbineRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("gas_turbine", GasTurbineRecipeSerializer::new);
     }

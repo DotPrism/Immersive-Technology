@@ -1,7 +1,6 @@
 package mctmods.immersivetechnology.common.blocks.metal.multiblocks;
 
 import blusunrize.immersiveengineering.api.multiblocks.ClientMultiblocks;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistration;
 import mctmods.immersivetechnology.common.blocks.metal.multiblocks.helper.ITClientMultiblockProperties;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
@@ -12,11 +11,11 @@ import net.minecraft.world.level.Level;
 
 import java.util.function.Consumer;
 
-public class ITSolarTower extends ITTemplateMultiblock
+public class ITDistiller extends ITTemplateMultiblock
 {
-    public static final ITSolarTower INSTANCE = new ITSolarTower();
+    public static final ITDistiller INSTANCE = new ITDistiller();
 
-    public ITSolarTower()
+    public ITDistiller()
     {
         super(new ResourceLocation(ITLib.MODID, "multiblocks/solar_tower"), new BlockPos(0,0,0), new BlockPos(1,2,1), new BlockPos(3,21,3), ITMultiblockProvider.SOLAR_TOWER);
     }

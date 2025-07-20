@@ -10,6 +10,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockS
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.CapabilityPosition;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.ShapeType;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.process.ProcessContext;
+import mctmods.immersivetechnology.common.blocks.metal.multiblocks.ITDistiller;
 import mctmods.immersivetechnology.common.blocks.metal.multiblocks.recipe.SolarTowerRecipe;
 import mctmods.immersivetechnology.common.blocks.metal.multiblocks.shapes.FullblockShape;
 import net.minecraft.core.BlockPos;
@@ -27,11 +28,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-public class ITSolarTowerLogic implements  IMultiblockLogic<ITSolarTowerLogic.State>, IServerTickableComponent<ITSolarTowerLogic.State>, IClientTickableComponent<ITSolarTowerLogic.State>
+public class ITDistillerLogic implements IMultiblockLogic<ITDistillerLogic.State>, IServerTickableComponent<ITDistillerLogic.State>, IClientTickableComponent<ITDistillerLogic.State>
 {
     @Override
     public State createInitialState(IInitialMultiblockContext iInitialMultiblockContext) {
-        return null;
+        return new State(iInitialMultiblockContext);
     }
 
     @Override
@@ -40,8 +41,7 @@ public class ITSolarTowerLogic implements  IMultiblockLogic<ITSolarTowerLogic.St
     }
 
     @Override
-    public LazyOptional getCapability(IMultiblockContext ctx, CapabilityPosition position, Capability cap)
-    {
+    public LazyOptional getCapability(IMultiblockContext ctx, CapabilityPosition position, Capability cap) {
         return IMultiblockLogic.super.getCapability(ctx, position, cap);
     }
 
@@ -51,17 +51,20 @@ public class ITSolarTowerLogic implements  IMultiblockLogic<ITSolarTowerLogic.St
     }
 
     @Override
-    public void tickServer(IMultiblockContext<State> iMultiblockContext) {
+    public void tickClient(IMultiblockContext<State> iMultiblockContext) {
 
     }
 
     @Override
-    public void tickClient(IMultiblockContext<State> iMultiblockContext) {
+    public void tickServer(IMultiblockContext<State> iMultiblockContext) {
 
     }
 
     public static class State implements IMultiblockState, ProcessContext.ProcessContextInWorld<SolarTowerRecipe>
     {
+        public State(IInitialMultiblockContext ctx) {
+        }
+
         @Override
         public void writeSaveNBT(CompoundTag compoundTag) {
 
