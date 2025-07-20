@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import mctmods.immersivetechnology.common.blocks.metal.multiblocks.ITTemplateMultiblock;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITBlocks;
+import mctmods.immersivetechnology.core.registration.ITFluids;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -25,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraftforge.client.model.generators.*;
@@ -74,6 +76,21 @@ public class ITBlockStateProvider extends BlockStateProvider {
         createSimpleBlock(ITBlocks.getBlock.apply("reinforced_coke_brick"), models().cubeAll("reinforced_coke_brick", modLoc("block/reinforced_coke_brick")));
         createSimpleBlock(ITBlocks.getBlock.apply("creative_barrel"), models().cubeAll("creative_barrel", modLoc("block/creative_barrel")));
         createMultiblock(ITBlocks.MetalDevices.COKE_OVEN_PREHEATER, split(innerObj("block/coke_oven_preheater.obj"), COLUMN_THREE));
+        ModelFile emptyModel = models().withExistingParent("empty", mcLoc("block/block"))
+                .renderType("cutout")  // Optional: Matches fluid render type if needed
+                .texture("particle", "#missingno");
+
+        for (ITBlocks.BlockEntry<?> fluidEntry : ITFluids.ALL_FLUID_BLOCKS) {
+            Block fluidBlock = fluidEntry.get();
+            VariantBlockStateBuilder builder = getVariantBuilder(fluidBlock);
+            for (int level = 0; level < 16; level++) {
+                builder.partialState()
+                        .with(LiquidBlock.LEVEL, level)
+                        .modelForState()
+                        .modelFile(emptyModel)
+                        .addModel();
+            }
+        }
     }
 
     private void createSimpleBlock(Block block, ModelFile model) { getVariantBuilder(block).partialState().setModels(new ConfiguredModel(model)); }
@@ -228,8 +245,7 @@ public class ITBlockStateProvider extends BlockStateProvider {
             particleTex = textures.get(particleTex.substring(1)).toString();
         ret.texture("particle", particleTex);
         generatedParticleTextures.put(ret.getLocation(), particleTex);
-        for (Entry<String, ResourceLocation> e : textures.entrySet())
-            ret.texture(e.getKey(), e.getValue());
+        for (Entry<String, ResourceLocation> e : textures.entrySet()) { ret.texture(e.getKey(), e.getValue()); }
         return ret;
     }
 
@@ -381,9 +397,7 @@ public class ITBlockStateProvider extends BlockStateProvider {
     protected void setRenderType(@Nullable RenderType type, ModelBuilder<?>... builders) {
         if (type != null) {
             final String typeName = ModelProviderUtils.getName(type);
-            for (final ModelBuilder<?> model : builders) {
-                model.renderType(typeName);
-            }
+            for (final ModelBuilder<?> model : builders) { model.renderType(typeName); }
         }
     }
 }
