@@ -37,7 +37,7 @@ import net.minecraft.world.ticks.ScheduledTick;
 
 import javax.annotation.Nullable;
 
-public class ITBlockBase extends Block implements IITBlock, SimpleWaterloggedBlock {
+public class ITBlockBase extends Block implements ITBlock, SimpleWaterloggedBlock {
     boolean isHidden;
     boolean hasFlavour;
     protected int lightOpacity;

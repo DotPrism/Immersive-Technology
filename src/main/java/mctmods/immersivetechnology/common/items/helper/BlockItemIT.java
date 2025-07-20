@@ -5,7 +5,7 @@ import blusunrize.immersiveengineering.api.client.TextUtils;
 import blusunrize.immersiveengineering.common.blocks.BlockItemIE;
 import blusunrize.immersiveengineering.common.util.EnergyHelper;
 import blusunrize.immersiveengineering.common.util.ItemNBTHelper;
-import mctmods.immersivetechnology.common.blocks.helper.IITBlock;
+import mctmods.immersivetechnology.common.blocks.helper.ITBlock;
 import mctmods.immersivetechnology.common.blocks.helper.ITBlockBase;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.ChatFormatting;
@@ -56,7 +56,7 @@ public class BlockItemIT extends BlockItem
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag advanced)
     {
-        if(getBlock() instanceof IITBlock ieBlock&&ieBlock.hasFlavour())
+        if(getBlock() instanceof ITBlock ieBlock&&ieBlock.hasFlavour())
         {
             String flavourKey = ITLib.DESC_FLAVOUR+ieBlock.getNameForFlavour();
             tooltip.add(TextUtils.applyFormat(Component.translatable(flavourKey), ChatFormatting.GRAY));

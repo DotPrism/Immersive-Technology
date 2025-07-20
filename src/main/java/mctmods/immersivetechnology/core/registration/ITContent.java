@@ -13,10 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 @SuppressWarnings("all")
-public class ITContent
-{
-    public static void initializeManualEntries()
-    {
+public class ITContent {
+    public static void initializeManualEntries() {
         ManualInstance instance = ManualHelper.getManual();
         InnerNode<ResourceLocation, ManualEntry> parent_category = instance.getRoot().getOrCreateSubnode(new ResourceLocation(ITLib.MODID, "main"), 99);
 
@@ -33,34 +31,22 @@ public class ITContent
         multiblockEntry(instance, multiblock_category, "gas_turbine");
     }
 
-    private static void multiblockEntry(ManualInstance instance, InnerNode<ResourceLocation, ManualEntry> category, String id)
-    {
+    private static void multiblockEntry(ManualInstance instance, InnerNode<ResourceLocation, ManualEntry> category, String id) {
         ManualEntry.ManualEntryBuilder multiblock = new ManualEntry.ManualEntryBuilder(ManualHelper.getManual());
         multiblock.readFromFile(new ResourceLocation(ITLib.MODID, id));
         instance.addEntry(category, multiblock.create());
     }
 
-    public static void registerContainersAndScreens()
-    {
+    public static void registerContainersAndScreens() {
         MenuScreens.register(ITMenuTypes.ADVANCED_COKE_OVEN_MENU.getType(), AdvCokeOvenScreen::new);
         MenuScreens.register(ITMenuTypes.BOILER_MENU.getType(), BoilerScreen::new);
     }
 
-    private static void fluidInit(IEventBus event)
-    {
-        ITFluids.REGISTER.register(event);
-        ITFluids.TYPE_REGISTER.register(event);
-    }
-
-    public static void initialize(IEventBus event)
-    {
+    public static void initialize(IEventBus event) {
         ITMultiblockProvider.forceClassLoad();
         ITRegistrationHolder.initialize();
         ITTags.initialize();
         ITRecipeTypes.init();
-        fluidInit(event);
-        ITItems.init(event);
-        ITBlocks.init(event);
         ITSounds.init(event);
     }
 }

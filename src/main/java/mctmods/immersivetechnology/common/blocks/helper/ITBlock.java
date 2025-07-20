@@ -1,6 +1,6 @@
 package mctmods.immersivetechnology.common.blocks.helper;
 
-public interface IITBlock {
+public interface ITBlock {
     boolean hasFlavour();
 
     String getNameForFlavour();

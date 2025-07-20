@@ -31,7 +31,6 @@ import blusunrize.immersiveengineering.common.util.inventory.SlotwiseItemHandler
 import blusunrize.immersiveengineering.common.util.inventory.SlotwiseItemHandler.IOConstraint;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
-import mctmods.immersivetechnology.core.registration.ITRegistrationHolder;
 import mctmods.immersivetechnology.core.registration.ITSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -65,9 +64,7 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("all")
-public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeOvenLogic.State>,
-        IServerTickableComponent<ITAdvancedCokeOvenLogic.State>, IClientTickableComponent<ITAdvancedCokeOvenLogic.State>
-{
+public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeOvenLogic.State>, IServerTickableComponent<ITAdvancedCokeOvenLogic.State>, IClientTickableComponent<ITAdvancedCokeOvenLogic.State> {
     private static final Vec3 SMOKE_POS = new Vec3(1.5, 3.9, 1.5);
     public static final BlockPos MASTER_OFFSET = new BlockPos(0, 0, 0);
     public static final MultiblockFace OUTPUT_TANK_OFFSET = new MultiblockFace(1, 0, 0, RelativeBlockFace.BACK);
@@ -85,167 +82,114 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
     private static final CapabilityPosition FLUID_OUTPUT_CAP;
     private static final CapabilityPosition ITEM_OUTPUT_CAP;
 
-    static
-    {
+    static {
         FLUID_OUTPUT_CAP = new CapabilityPosition(1, 0, 0, RelativeBlockFace.FRONT);
         ITEM_OUTPUT_CAP = new CapabilityPosition(1, 0, 2, RelativeBlockFace.BACK);
     }
 
     @Override
-    public State createInitialState(IInitialMultiblockContext<ITAdvancedCokeOvenLogic.State> capabilitySource)
-    {
+    public State createInitialState(IInitialMultiblockContext<ITAdvancedCokeOvenLogic.State> capabilitySource) {
         return new ITAdvancedCokeOvenLogic.State(capabilitySource);
     }
 
     @Override
-    public void tickServer(IMultiblockContext<ITAdvancedCokeOvenLogic.State> context)
-    {
+    public void tickServer(IMultiblockContext<ITAdvancedCokeOvenLogic.State> context) {
         final ITAdvancedCokeOvenLogic.State state = context.getState();
         final BlockState masterBlockState = context.getLevel().getBlockState(MASTER_OFFSET);
         final boolean activeBeforeTick = masterBlockState.getValue(NonMirrorableWithActiveBlock.ACTIVE);
         boolean active = activeBeforeTick;
-        if(state.tank.getFluid().getAmount() > 0)
-        {
+        if (state.tank.getFluid().getAmount() > 0) {
             drainOutputTank(state, context, state.fluidOutput);
         }
 
-        if(state.process > 0)
-        {
-            if(state.inventory.getStackInSlot(INPUT_SLOT).isEmpty())
-            {
+        if (state.process > 0) {
+            if (state.inventory.getStackInSlot(INPUT_SLOT).isEmpty()) {
                 state.process = 0;
                 state.processMax = 0;
-            }
-            else
-            {
+            } else {
                 AdvancedCokeOvenRecipe recipe = getRecipe(context);
-                if(recipe==null||recipe.time!=state.processMax)
-                {
+                if (recipe==null||recipe.time!=state.processMax) {
                     state.process = 0;
                     state.processMax = 0;
                     active = false;
-                }
-                else
+                } else {
                     state.process--;
+                }
             }
             context.markMasterDirty();
-        }
-        else
-        {
-            if(activeBeforeTick)
-            {
+        } else {
+            if (activeBeforeTick) {
                 AdvancedCokeOvenRecipe recipe = getRecipe(context);
-                if(recipe!=null)
-                {
+                if (recipe!=null) {
                     state.inventory.getStackInSlot(INPUT_SLOT).grow(-recipe.input.getCount());
                     final ItemStack outputStack = state.inventory.getStackInSlot(OUTPUT_SLOT);
-                    if(!outputStack.isEmpty())
-                        outputStack.grow(recipe.output.get().copy().getCount());
-                    else if(outputStack.isEmpty())
-                        state.inventory.setStackInSlot(OUTPUT_SLOT, recipe.output.get().copy());
-                    state.tank.fill(
-                            new FluidStack(IEFluids.CREOSOTE.getStill(), recipe.creosoteOutput), FluidAction.EXECUTE
-                    );
+                    if (!outputStack.isEmpty()) { outputStack.grow(recipe.output.get().copy().getCount()); }
+                    else if (outputStack.isEmpty()) { state.inventory.setStackInSlot(OUTPUT_SLOT, recipe.output.get().copy()); }
+                    state.tank.fill( new FluidStack(IEFluids.CREOSOTE.getStill(), recipe.creosoteOutput), FluidAction.EXECUTE );
                 }
                 state.processMax = 0;
                 active = false;
             }
             AdvancedCokeOvenRecipe recipe = getRecipe(context);
-            if(recipe!=null)
-            {
+            if (recipe!=null) {
                 state.process = recipe.time;
                 state.processMax = state.process;
                 active = true;
             }
         }
-
-        if(state.tank.getFluidAmount() > 0&&FluidUtils.fillFluidContainer(
-                state.tank, EMPTY_CONTAINER_SLOT, FULL_CONTAINER_SLOT, state.inventory
-        ))
-            context.markMasterDirty();
-
+        if (state.tank.getFluidAmount() > 0&&FluidUtils.fillFluidContainer(state.tank, EMPTY_CONTAINER_SLOT, FULL_CONTAINER_SLOT, state.inventory)) { context.markMasterDirty(); }
         final IItemHandlerModifiable inventory = state.getInventory();
         ItemStack stack = inventory.getStackInSlot(1);
-        if(!stack.isEmpty())
-        {
+        if (!stack.isEmpty()) {
             stack = Utils.insertStackIntoInventory(state.outputRef, stack, false);
             inventory.setStackInSlot(1, stack);
         }
-
-        if(activeBeforeTick!=active)
-            NonMirrorableWithActiveBlock.setActive(context.getLevel(), ITRegistrationHolder.getMBTemplate.apply("coke_oven_advanced"), active);
+        if (activeBeforeTick!=active) { NonMirrorableWithActiveBlock.setActive(context.getLevel(), ITMultiblockProvider.getMBTemplate.apply("coke_oven_advanced"), active); }
     }
 
     @Nullable
-    public AdvancedCokeOvenRecipe getRecipe(IMultiblockContext<ITAdvancedCokeOvenLogic.State> context)
-    {
+    public AdvancedCokeOvenRecipe getRecipe(IMultiblockContext<ITAdvancedCokeOvenLogic.State> context) {
         final ITAdvancedCokeOvenLogic.State state = context.getState();
         AdvancedCokeOvenRecipe recipe = state.cachedRecipe.apply(context.getLevel().getRawLevel());
-        if(recipe==null)
-            return null;
-
+        if (recipe==null) { return null; }
         final ItemStack currentOutputStack = state.inventory.getStackInSlot(OUTPUT_SLOT);
         final boolean canOutputItem;
-        if(currentOutputStack.isEmpty())
-            canOutputItem = true;
-        else if(!ItemHandlerHelper.canItemStacksStack(currentOutputStack, recipe.output.get()))
-            canOutputItem = false;
-        else
-            canOutputItem = currentOutputStack.getCount()+recipe.output.get().getCount() <= 64;
-        if(canOutputItem&&state.tank.getFluidAmount()+recipe.creosoteOutput <= state.tank.getCapacity())
-            return recipe;
+        if (currentOutputStack.isEmpty()) { canOutputItem = true; }
+        else if (!ItemHandlerHelper.canItemStacksStack(currentOutputStack, recipe.output.get())) { canOutputItem = false; }
+        else { canOutputItem = currentOutputStack.getCount()+recipe.output.get().getCount() <= 64; }
+        if (canOutputItem&&state.tank.getFluidAmount()+recipe.creosoteOutput <= state.tank.getCapacity()) { return recipe; }
         return null;
     }
 
     @Override
-    public <T> LazyOptional<T> getCapability(
-            IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap
-    )
-    {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         final State state = ctx.getState();
-        if(cap==ForgeCapabilities.ITEM_HANDLER)
-            return state.invCap.cast(ctx);
-        else if(cap==ForgeCapabilities.FLUID_HANDLER)
-        {
-            if (FLUID_OUTPUT_CAP.equals(position))
-            {
-                return state.fluidCap.cast(ctx);
-            }
-        }
-        else if(cap==ForgeCapabilities.ITEM_HANDLER)
-        {
-            if(ITEM_OUTPUT_CAP.equals(position))
-                return state.itemOutputCap.cast(ctx);
-        }
-        else
-            return LazyOptional.empty();
+        if (cap==ForgeCapabilities.ITEM_HANDLER) { return state.invCap.cast(ctx);
+        } else if (cap==ForgeCapabilities.FLUID_HANDLER) {
+            if (FLUID_OUTPUT_CAP.equals(position)) { return state.fluidCap.cast(ctx); }
+        } else if (cap==ForgeCapabilities.ITEM_HANDLER) {
+            if (ITEM_OUTPUT_CAP.equals(position)) { return state.itemOutputCap.cast(ctx); }
+        } else { return LazyOptional.empty(); }
         return LazyOptional.empty();
     }
 
     @Override
-    public void dropExtraItems(State state, Consumer<ItemStack> drop)
-    {
+    public void dropExtraItems(State state, Consumer<ItemStack> drop) {
         MBInventoryUtils.dropItems(state.getInventory(), drop);
     }
 
     @Override
-    public Function<BlockPos, VoxelShape> shapeGetter(ShapeType forType)
-    {
+    public Function<BlockPos, VoxelShape> shapeGetter(ShapeType forType) {
         return AdvCokeOvenShape.GETTER;
     }
 
-    private void drainOutputTank(ITAdvancedCokeOvenLogic.State state, IMultiblockContext<ITAdvancedCokeOvenLogic.State> context, CapabilityReference<IFluidHandler> outputRef)
-    {
+    private void drainOutputTank(ITAdvancedCokeOvenLogic.State state, IMultiblockContext<ITAdvancedCokeOvenLogic.State> context, CapabilityReference<IFluidHandler> outputRef) {
         int outSize = Math.min(FluidType.BUCKET_VOLUME, state.tank.getFluidAmount());
         FluidStack out = Utils.copyFluidStackWithAmount(state.tank.getFluid(), outSize, false);
         IFluidHandler output = outputRef.getNullable();
-
-        if(output==null)
-            return;
-
+        if (output==null) { return; }
         int accepted = output.fill(out, FluidAction.SIMULATE);
-        if(accepted > 0)
-        {
+        if (accepted > 0) {
             int drained = output.fill(Utils.copyFluidStackWithAmount(out, Math.min(out.getAmount(), accepted), false), FluidAction.EXECUTE);
             state.tank.drain(drained, FluidAction.EXECUTE);
             context.markMasterDirty();
@@ -254,13 +198,11 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
     }
 
     @Override
-    public void tickClient(IMultiblockContext<State> ctx)
-    {
+    public void tickClient(IMultiblockContext<State> ctx) {
         final State state = ctx.getState();
 
         final IMultiblockLevel level = ctx.getLevel();
-        if(isActive(level))
-        {
+        if (isActive(level)) {
             final Vec3 particlePos = level.toAbsolute(SMOKE_POS);
             level.getRawLevel().addAlwaysVisibleParticle(
                     ParticleTypes.CAMPFIRE_COSY_SMOKE,
@@ -269,8 +211,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
             );
         }
 
-        if(!state.isSoundPlaying.getAsBoolean())
-        {
+        if (!state.isSoundPlaying.getAsBoolean()) {
             final Vec3 soundPos = ctx.getLevel().toAbsolute(new Vec3(1.5, 1.5, 1.5));
             state.isSoundPlaying = MultiblockSound.startSound(
                     () -> isActive(level), ctx.isValid(), soundPos, ITSounds.advCokeOven, 1f
@@ -278,14 +219,12 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         }
     }
 
-    private boolean isActive(IMultiblockLevel level)
-    {
+    private boolean isActive(IMultiblockLevel level) {
         return level.getBlockState(ITMultiblockProvider.ADV_COKE_OVEN.masterPosInMB())
                 .getValue(NonMirrorableWithActiveBlock.ACTIVE);
     }
 
-    public static class State implements IMultiblockState, ContainerData, ITFurnaceHandler.IFurnaceEnvironment, ProcessContext.ProcessContextInWorld<AdvancedCokeOvenRecipe>
-    {
+    public static class State implements IMultiblockState, ContainerData, ITFurnaceHandler.IFurnaceEnvironment, ProcessContext.ProcessContextInWorld<AdvancedCokeOvenRecipe> {
         public static final int MAX_BURN_TIME = 0;
         public static final int BURN_TIME = 1;
         public static final int NUM_SLOTS = 2;
@@ -307,8 +246,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         private final CapabilityReference<IFluidHandler> fluidOutput;
         private final CapabilityReference<IItemHandler> outputRef;
 
-        public State(IInitialMultiblockContext<ITAdvancedCokeOvenLogic.State> ctx)
-        {
+        public State(IInitialMultiblockContext<ITAdvancedCokeOvenLogic.State> ctx) {
             final Supplier<@Nullable Level> levelGetter = ctx.levelSupplier();
             inventory = new SlotwiseItemHandler(
                     List.of(
@@ -334,8 +272,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         }
 
         @Override
-        public void writeSaveNBT(CompoundTag nbt)
-        {
+        public void writeSaveNBT(CompoundTag nbt) {
             nbt.put("tank", tank.writeToNBT(new CompoundTag()));
             nbt.putInt("process", process);
             nbt.putInt("processMax", processMax);
@@ -343,8 +280,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         }
 
         @Override
-        public void readSaveNBT(CompoundTag nbt)
-        {
+        public void readSaveNBT(CompoundTag nbt) {
             tank.readFromNBT(nbt.getCompound("tank"));
             process = nbt.getInt("process");
             processMax = nbt.getInt("processMax");
@@ -352,10 +288,8 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         }
 
         @Override
-        public int get(int index)
-        {
-            return switch(index)
-            {
+        public int get(int index) {
+            return switch(index) {
                 case MAX_BURN_TIME -> processMax;
                 case BURN_TIME -> process;
                 default -> throw new IllegalArgumentException("Unknown index "+index);
@@ -363,10 +297,8 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         }
 
         @Override
-        public void set(int index, int value)
-        {
-            switch(index)
-            {
+        public void set(int index, int value) {
+            switch(index) {
                 case MAX_BURN_TIME -> processMax = value;
                 case BURN_TIME -> process = value;
                 default -> throw new IllegalArgumentException("Unknown index "+index);
@@ -374,25 +306,14 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         }
 
         @Override
-        public int getCount()
-        {
-            return NUM_SLOTS;
-        }
+        public int getCount() { return NUM_SLOTS; }
 
-        public FluidTank getTank()
-        {
-            return tank;
-        }
+        public FluidTank getTank() { return tank; }
 
         @Override
-        public AveragingEnergyStorage getEnergy() {
-            return null;
-        }
+        public AveragingEnergyStorage getEnergy() { return null; }
 
-        public SlotwiseItemHandler getInventory()
-        {
-            return inventory;
-        }
+        public SlotwiseItemHandler getInventory() { return inventory; }
 
         @Override
         public IItemHandlerModifiable getInventory(int furnaceIndex) {
@@ -411,40 +332,33 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         }
 
         @Override
-        public int getProcessSpeed(IMultiblockLevel level)
-        {
+        public int getProcessSpeed(IMultiblockLevel level) {
             int i = 1;
-            for(final BlockPos offset : HEATER_OFFSETS)
-            {
+            for (final BlockPos offset : HEATER_OFFSETS) {
                 final CokeOvenPreheaterBlockEntity preheater = getPreheater(level, offset);
                 if (preheater == null)
                     ITLib.IT_LOGGER.error("Preheater is Null!");
-                if(preheater!=null)
+                if (preheater!=null)
                     i += preheater.doSpeedup();
             }
             return i;
         }
 
         @Override
-        public void turnOff(IMultiblockLevel level)
-        {
-            for(final BlockPos offset : HEATER_OFFSETS)
-            {
+        public void turnOff(IMultiblockLevel level) {
+            for (final BlockPos offset : HEATER_OFFSETS) {
                 final CokeOvenPreheaterBlockEntity preheater = getPreheater(level, offset);
-                if(preheater!=null)
-                    preheater.turnOff();
+                if (preheater!=null) { preheater.turnOff(); }
             }
         }
 
         @Nullable
-        public CokeOvenPreheaterBlockEntity getPreheater(IMultiblockLevel level, BlockPos pos)
-        {
+        public CokeOvenPreheaterBlockEntity getPreheater(IMultiblockLevel level, BlockPos pos) {
             BlockEntity te = level.getBlockEntity(pos);
             return te instanceof CokeOvenPreheaterBlockEntity heater?heater: null;
         }
 
-        public GetterAndSetter<Boolean> preheaterActive(IMultiblockLevel level, int index)
-        {
+        public GetterAndSetter<Boolean> preheaterActive(IMultiblockLevel level, int index) {
             return GetterAndSetter.getterOnly(() -> {
                 final CokeOvenPreheaterBlockEntity heater = getPreheater(level, HEATER_OFFSETS[index]);
                 return heater!=null&&heater.active;
@@ -453,13 +367,9 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
     }
 
     public record AdvCokeOvenTank(FluidTank output) {
-        public AdvCokeOvenTank() {
-            this(new FluidTank(TANK_CAPACITY));
-        }
+        public AdvCokeOvenTank() { this(new FluidTank(TANK_CAPACITY)); }
 
-        public AdvCokeOvenTank(FluidTank output) {
-            this.output = output;
-        }
+        public AdvCokeOvenTank(FluidTank output) { this.output = output; }
 
         public Tag toNBT() {
             CompoundTag tag = new CompoundTag();
@@ -467,13 +377,9 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
             return tag;
         }
 
-        public void readNBT(CompoundTag tag) {
-            this.output.readFromNBT(tag.getCompound("out"));
-        }
+        public void readNBT(CompoundTag tag) { this.output.readFromNBT(tag.getCompound("out")); }
 
-        public FluidTank output() {
-            return this.output;
-        }
+        public FluidTank output() { return this.output; }
 
         public BlockPos getLeftTankPos(boolean isMirrored) {
             BlockPos pos = new BlockPos(-4, 1, 0);
@@ -499,8 +405,6 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
             return pos;
         }
 
-        public int getCapacity() {
-            return TANK_CAPACITY;
-        }
+        public int getCapacity() { return TANK_CAPACITY; }
     }
 }

@@ -1,11 +1,3 @@
-/*
- * BluSunrize
- * Copyright (c) 2017
- *
- * This code is licensed under "Blu's License of Common Sense"
- * Details can be found in the license file in the root folder of this project
- */
-
 package mctmods.immersivetechnology.common.fluids;
 
 import mctmods.immersivetechnology.core.registration.ITFluids;
@@ -35,21 +27,17 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * @author BluSunrize - 22.02.2017
- */
-public class ITFluid extends FlowingFluid
-{
+public class ITFluid extends FlowingFluid {
     private static ITFluids.FluidEntry entryStatic;
     protected final ITFluids.FluidEntry entry;
 
-    public static ITFluid makeFluid(Function<ITFluids.FluidEntry, ? extends ITFluid> make, ITFluids.FluidEntry entry)
-    {
+    public static ITFluid makeFluid(Function<ITFluids.FluidEntry, ? extends ITFluid> make, ITFluids.FluidEntry entry) {
         entryStatic = entry;
         ITFluid result = make.apply(entry);
         entryStatic = null;
@@ -69,10 +57,7 @@ public class ITFluid extends FlowingFluid
     }
 
     @Override
-    protected boolean canBeReplacedWith(FluidState fluidState, BlockGetter blockReader, BlockPos pos, Fluid fluidIn, Direction direction)
-    {
-        return direction==Direction.DOWN&&!isSame(fluidIn);
-    }
+    protected boolean canBeReplacedWith(@NotNull FluidState fluidState, @NotNull BlockGetter blockReader, @NotNull BlockPos pos, @NotNull Fluid fluidIn, @NotNull Direction direction) { return direction==Direction.DOWN&&!isSame(fluidIn); }
 
     @Override
     public boolean isSame(@Nonnull Fluid fluidIn)
@@ -81,11 +66,8 @@ public class ITFluid extends FlowingFluid
     }
 
     @Override
-    public int getTickDelay(LevelReader p_205569_1_)
-    {
-        // viscosity delta to water (1000)
+    public int getTickDelay(@NotNull LevelReader p_205569_1_) {
         int dW = this.getFlowing().getFluidType().getViscosity()-Fluids.WATER.getFluidType().getViscosity();
-        // dW for water & lava is 5000, difference in tick delay is 25 -> 0.005 as a modifier
         double v = Math.round(5 + dW*0.005);
         return Math.max(2, (int)v);
     }
@@ -97,103 +79,67 @@ public class ITFluid extends FlowingFluid
     }
 
     @Override
-    protected void createFluidStateDefinition(Builder<Fluid, FluidState> builder)
-    {
+    protected void createFluidStateDefinition(@NotNull Builder<Fluid, FluidState> builder) {
         super.createFluidStateDefinition(builder);
-        for(Property<?> p : (entry==null?entryStatic: entry).properties())
-            builder.add(p);
+        for (Property<?> p : (entry==null?entryStatic: entry).properties()) { builder.add(p); }
     }
 
     @Override
-    protected BlockState createLegacyBlock(FluidState state)
-    {
+    protected @NotNull BlockState createLegacyBlock(@NotNull FluidState state) {
         BlockState result = entry.getBlock().defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
-        for(Property<?> prop : entry.properties())
+        for (Property<?> prop : entry.properties())
             result = ITFluidBlock.withCopiedValue(prop, result, state);
         return result;
     }
 
     @Override
-    public boolean isSource(FluidState state)
-    {
-        return state.getType()==entry.getStill();
+    public boolean isSource(FluidState state) { return state.getType()==entry.getStill(); }
+
+    @Override
+    public int getAmount(@NotNull FluidState state) {
+        if (isSource(state)) { return 8; }
+        else { return state.getValue(LEVEL); }
     }
 
     @Override
-    public int getAmount(FluidState state)
-    {
-        if(isSource(state))
-            return 8;
-        else
-            return state.getValue(LEVEL);
-    }
-
-    @Override
-    public FluidType getFluidType()
-    {
-        return entry.type().get();
-    }
+    public @NotNull FluidType getFluidType() { return entry.type().get(); }
 
     @Nonnull
     @Override
-    public Fluid getFlowing()
-    {
-        return entry.getFlowing();
-    }
+    public Fluid getFlowing() { return entry.getFlowing(); }
 
     @Nonnull
     @Override
-    public Fluid getSource()
-    {
-        return entry.getStill();
-    }
+    public Fluid getSource() { return entry.getStill(); }
 
     @Override
-    public boolean canConvertToSource(Level level)
-    {
-        return false;
-    }
+    public boolean canConvertToSource(@NotNull Level level) { return false; }
 
     @Override
-    protected void beforeDestroyingBlock(LevelAccessor iWorld, BlockPos blockPos, BlockState blockState)
-    {
-
-    }
+    protected void beforeDestroyingBlock(@NotNull LevelAccessor iWorld, @NotNull BlockPos blockPos, @NotNull BlockState blockState) { }
 
     @Override
-    protected int getSlopeFindDistance(LevelReader iWorldReader)
-    {
-        return 4;
-    }
+    protected int getSlopeFindDistance(@NotNull LevelReader iWorldReader) { return 4; }
 
     @Override
-    protected int getDropOff(LevelReader iWorldReader)
-    {
-        return 1;
-    }
+    protected int getDropOff(@NotNull LevelReader iWorldReader) { return 1; }
 
-    public static Consumer<FluidType.Properties> createBuilder(int density, int viscosity)
-    {
-        return builder -> builder.viscosity(viscosity).density(density);
-    }
+    public static Consumer<FluidType.Properties> createBuilder(int density, int viscosity) { return builder -> builder.viscosity(viscosity).density(density); }
 
-    public static class Flowing extends ITFluid
-    {
+    public static class Flowing extends ITFluid {
         public Flowing(ITFluids.FluidEntry entry)
         {
             super(entry);
         }
 
         @Override
-        protected void createFluidStateDefinition(Builder<Fluid, FluidState> builder)
-        {
+        protected void createFluidStateDefinition(@NotNull Builder<Fluid, FluidState> builder) {
             super.createFluidStateDefinition(builder);
             builder.add(LEVEL);
         }
     }
 
-    public static class EntityFluidSerializer implements EntityDataSerializer<FluidStack>
-    {
+    public static class EntityFluidSerializer implements EntityDataSerializer<FluidStack> {
         @Override
         public void write(FriendlyByteBuf buf, @Nonnull FluidStack value)
         {
@@ -215,22 +161,18 @@ public class ITFluid extends FlowingFluid
         }
     }
 
-    public static final DispenseItemBehavior BUCKET_DISPENSE_BEHAVIOR = new DefaultDispenseItemBehavior()
-    {
+    public static final DispenseItemBehavior BUCKET_DISPENSE_BEHAVIOR = new DefaultDispenseItemBehavior() {
         private final DefaultDispenseItemBehavior defaultBehavior = new DefaultDispenseItemBehavior();
 
-        public ItemStack execute(BlockSource source, ItemStack stack)
-        {
+        public @NotNull ItemStack execute(BlockSource source, ItemStack stack) {
             BucketItem bucketitem = (BucketItem)stack.getItem();
             BlockPos blockpos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
             Level world = source.getLevel();
-            if(bucketitem.emptyContents(null, world, blockpos, null))
-            {
+            if (bucketitem.emptyContents(null, world, blockpos, null)) {
                 bucketitem.checkExtraContent(null, world, stack, blockpos);
                 return new ItemStack(Items.BUCKET);
             }
-            else
-                return this.defaultBehavior.dispense(source, stack);
+            else { return this.defaultBehavior.dispense(source, stack); }
         }
     };
 }

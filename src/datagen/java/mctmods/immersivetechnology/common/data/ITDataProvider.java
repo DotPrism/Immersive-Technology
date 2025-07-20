@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = ITLib.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ITDataProvider
-{
+public class ITDataProvider {
     public static Logger log = LogManager.getLogger(ITLib.MODID + "/DataGenerator");
 
     @SubscribeEvent
@@ -45,5 +44,5 @@ public class ITDataProvider
             generator.addProvider(true, new LootTableProvider(out, Collections.emptySet(), List.of(new LootTableProvider.SubProviderEntry(ITBlockLootProvider::new, LootContextParamSets.BLOCK))));
         }
     }
-
 }
+

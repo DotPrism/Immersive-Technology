@@ -6,8 +6,8 @@ import mctmods.immersivetechnology.client.renderer.CokeOvenPreheaterRenderer;
 import mctmods.immersivetechnology.client.renderer.GasTurbineRenderer;
 import mctmods.immersivetechnology.client.renderer.SteamTurbineRenderer;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import mctmods.immersivetechnology.core.registration.ITBlockEntities;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
-import mctmods.immersivetechnology.core.registration.ITRegistrationHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -24,31 +24,21 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = ITLib.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ClientProxy extends CommonProxy
-{
+public class ClientProxy extends CommonProxy {
     @Override
-    public void reinitializeGUI()
-    {
+    public void reinitializeGUI() {
         Screen currentScreen = Minecraft.getInstance().screen;
-        if(currentScreen instanceof IEContainerScreen)
-            currentScreen.init(Minecraft.getInstance(), currentScreen.width, currentScreen.height);
+        if (currentScreen instanceof IEContainerScreen) { currentScreen.init(Minecraft.getInstance(), currentScreen.width, currentScreen.height); }
     }
 
     @Override
-    public Level getClientWorld()
-    {
-        return Minecraft.getInstance().level;
-    }
+    public Level getClientWorld() { return Minecraft.getInstance().level; }
 
     @Override
-    public Player getClientPlayer()
-    {
-        return Minecraft.getInstance().player;
-    }
+    public Player getClientPlayer() { return Minecraft.getInstance().player; }
 
     @SubscribeEvent
-    public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders ev)
-    {
+    public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders ev) {
         CokeOvenPreheaterRenderer.MODEL = new ITDynamicModel(CokeOvenPreheaterRenderer.NAME);
         SteamTurbineRenderer.MODEL = new ITDynamicModel(SteamTurbineRenderer.NAME);
         SteamTurbineRenderer.MODEL_EAST_WEST = new ITDynamicModel(SteamTurbineRenderer.NAME_EAST_WEST);
@@ -57,35 +47,24 @@ public class ClientProxy extends CommonProxy
     }
 
     @SubscribeEvent
-    public static void registerRenders(EntityRenderersEvent.RegisterRenderers event)
-    {
+    public static void registerRenders(EntityRenderersEvent.RegisterRenderers event) {
         registerBERenders(event);
         registerEntityRenders(event);
     }
 
-    private static void registerEntityRenders(EntityRenderersEvent.RegisterRenderers event)
-    {
+    private static void registerEntityRenders(EntityRenderersEvent.RegisterRenderers event) {
     }
 
-    private static <T extends BlockEntity>
-    void registerBERenderNoContext(
-            EntityRenderersEvent.RegisterRenderers event, Supplier<BlockEntityType<? extends T>> type, Supplier<BlockEntityRenderer<T>> render
-    )
-    {
+    private static <T extends BlockEntity> void registerBERenderNoContext(EntityRenderersEvent.RegisterRenderers event, Supplier<BlockEntityType<? extends T>> type, Supplier<BlockEntityRenderer<T>> render) {
         registerBERenderNoContext(event, type.get(), render);
     }
 
-    private static <T extends BlockEntity>
-    void registerBERenderNoContext(
-            EntityRenderersEvent.RegisterRenderers event, BlockEntityType<? extends T> type, Supplier<BlockEntityRenderer<T>> render
-    )
-    {
+    private static <T extends BlockEntity> void registerBERenderNoContext(EntityRenderersEvent.RegisterRenderers event, BlockEntityType<? extends T> type, Supplier<BlockEntityRenderer<T>> render) {
         event.registerBlockEntityRenderer(type, $ -> render.get());
     }
 
-    public static void registerBERenders(EntityRenderersEvent.RegisterRenderers event)
-    {
-        registerBERenderNoContext(event, ITRegistrationHolder.COKEOVEN_PREHEATER.master(), CokeOvenPreheaterRenderer::new);
+    public static void registerBERenders(EntityRenderersEvent.RegisterRenderers event) {
+        registerBERenderNoContext(event, ITBlockEntities.COKE_OVEN_PREHEATER.get(), CokeOvenPreheaterRenderer::new);
         registerBERenderNoContext(event, ITMultiblockProvider.STEAM_TURBINE.masterBE(), SteamTurbineRenderer::new);
         registerBERenderNoContext(event, ITMultiblockProvider.GAS_TURBINE.masterBE(), GasTurbineRenderer::new);
     }

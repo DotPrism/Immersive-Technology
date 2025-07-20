@@ -5,7 +5,6 @@ import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
 
-@Mixin(IEBlocks.class)
+@Mixin(value = IEBlocks.class, remap = false)
 public class MixinFluidProtection
 {
     @Shadow @Final @Mutable
