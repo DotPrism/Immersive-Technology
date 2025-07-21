@@ -26,10 +26,12 @@ public class ITBlockLootProvider extends BlockLootSubProvider {
 
         // Multiblocks: no drops
         add(ITMultiblockProvider.BOILER.block().get(), noDrop());
+        add(ITMultiblockProvider.DISTILLER.block().get(), noDrop());
         add(ITMultiblockProvider.STEAM_TURBINE.block().get(), noDrop());
         add(ITMultiblockProvider.GAS_TURBINE.block().get(), noDrop());
         add(ITMultiblockProvider.ALTERNATOR.block().get(), noDrop());
         add(ITMultiblockProvider.ADV_COKE_OVEN.block().get(), noDrop());
+        add(ITMultiblockProvider.SOLAR_TOWER.block().get(), noDrop()); // Added to handle solar_tower
 
         // Fluid blocks: no drops
         ITFluids.ALL_ENTRIES.forEach(entry -> add(entry.getBlock(), noDrop()));
