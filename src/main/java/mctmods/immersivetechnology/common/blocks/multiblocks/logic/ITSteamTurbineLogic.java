@@ -1,5 +1,6 @@
 package mctmods.immersivetechnology.common.blocks.multiblocks.logic;
 
+import blusunrize.immersiveengineering.api.ApiUtils;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.IClientTickableComponent;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.IServerTickableComponent;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.RedstoneControl;
@@ -23,6 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
@@ -94,6 +96,30 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
                     },
                     () -> state.currentPitch
             );
+        }
+        if (state.active && ctx.getLevel().shouldTickModulo(2)) {
+            Direction facing = ctx.getLevel().getOrientation().front();
+            BlockPos outputRel = new BlockPos(1, 0, 1);
+            BlockPos outputAbs = ctx.getLevel().toAbsolute(outputRel);
+            BlockPos adjacentAbs = outputAbs.relative(facing);
+            Level level = ctx.getLevel().getRawLevel();
+            BlockEntity te = level.getBlockEntity(adjacentAbs);
+            boolean connected = false;
+            if (te != null) {
+                LazyOptional<IFluidHandler> handlerOpt = te.getCapability(ForgeCapabilities.FLUID_HANDLER, facing.getOpposite());
+                if (handlerOpt.isPresent()) {
+                    connected = true;
+                }
+            }
+            if (!connected) {
+                Vec3 smokeOffset = new Vec3(facing.getStepX() * 0.5, facing.getStepY() * 0.5, facing.getStepZ() * 0.5);
+                Vec3 smokePos = ctx.getLevel().toAbsolute(new Vec3(1.5, 0.5, 1.5)).add(smokeOffset);
+                level.addAlwaysVisibleParticle(
+                        ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                        smokePos.x, smokePos.y, smokePos.z,
+                        particleXZSpeed(), 0.0625, particleXZSpeed()
+                );
+            }
         }
     }
 
@@ -190,6 +216,8 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         speedOut -= state.slowDownRate;
         return speedOut;
     }
+
+    private static double particleXZSpeed() { return ApiUtils.RANDOM.nextDouble(-0.015625, 0.015625); }
 
     public static class State implements IMultiblockState {
         private final SteamTurbineTank tanks;

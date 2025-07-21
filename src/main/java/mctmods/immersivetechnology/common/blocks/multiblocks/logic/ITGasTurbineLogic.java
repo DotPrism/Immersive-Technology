@@ -1,5 +1,6 @@
 package mctmods.immersivetechnology.common.blocks.multiblocks.logic;
 
+import blusunrize.immersiveengineering.api.ApiUtils;
 import blusunrize.immersiveengineering.api.energy.AveragingEnergyStorage;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.IClientTickableComponent;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.IServerTickableComponent;
@@ -177,6 +178,30 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
             double pz = particlePos.z + 2 - level.random.nextFloat() * 3;
             level.addParticle(ParticleTypes.SMOKE, px, py, pz, 0, 0.02, 0);
         }
+        if (state.active && ctx.getLevel().shouldTickModulo(2)) {
+            Direction facing = ctx.getLevel().getOrientation().front();
+            BlockPos outputRel = new BlockPos(1, 0, 0);
+            BlockPos outputAbs = ctx.getLevel().toAbsolute(outputRel);
+            BlockPos adjacentAbs = outputAbs.relative(facing);
+            Level level2 = ctx.getLevel().getRawLevel();  // Renamed to avoid shadowing
+            BlockEntity te = level2.getBlockEntity(adjacentAbs);
+            boolean connected = false;
+            if (te != null) {
+                LazyOptional<IFluidHandler> handlerOpt = te.getCapability(ForgeCapabilities.FLUID_HANDLER, facing.getOpposite());
+                if (handlerOpt.isPresent()) {
+                    connected = true;
+                }
+            }
+            if (!connected) {
+                Vec3 smokeOffset = new Vec3(facing.getStepX() * 0.5, facing.getStepY() * 0.5, facing.getStepZ() * 0.5);
+                Vec3 smokePos = ctx.getLevel().toAbsolute(new Vec3(1.5, 0.5, 0.5)).add(smokeOffset);
+                level2.addAlwaysVisibleParticle(
+                        ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                        smokePos.x, smokePos.y, smokePos.z,
+                        particleXZSpeed(), 0.0625, particleXZSpeed()
+                );
+            }
+        }
     }
 
     @Override
@@ -342,6 +367,8 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         }
         return LazyOptional.empty();
     }
+
+    private static double particleXZSpeed() { return ApiUtils.RANDOM.nextDouble(-0.015625, 0.015625); }
 
     public static class State implements IMultiblockState {
         private final GasTurbineTank tanks;
