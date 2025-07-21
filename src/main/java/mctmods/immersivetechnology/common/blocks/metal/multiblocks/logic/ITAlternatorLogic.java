@@ -156,6 +156,7 @@ public class ITAlternatorLogic implements IMultiblockLogic<ITAlternatorLogic.Sta
     }
 
     private void generateEnergy(State state) {
+        if (state.speed < 900) return;
         double ratio = (double) state.speed / state.maxSpeed;
         if (ratio > 0.0) {
             int generated = (int) Math.round(Math.pow(ratio, 2.0) * state.torqueMult * 12288);
