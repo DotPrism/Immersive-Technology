@@ -4,7 +4,7 @@ import blusunrize.immersiveengineering.client.gui.IEContainerScreen;
 import blusunrize.immersiveengineering.client.gui.info.FluidInfoArea;
 import blusunrize.immersiveengineering.client.gui.info.InfoArea;
 import com.google.common.collect.ImmutableList;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.gui.BoilerMenu;
+import mctmods.immersivetechnology.common.blocks.multiblocks.gui.BoilerMenu;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;

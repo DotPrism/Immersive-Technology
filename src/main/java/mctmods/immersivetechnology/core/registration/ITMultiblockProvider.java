@@ -8,9 +8,9 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockS
 import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockItem;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.logic.NonMirrorableWithActiveBlock;
 import blusunrize.immersiveengineering.common.register.IEBlocks;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.*;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.logic.*;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.logic.helper.ITMultiblockBuilder;
+import mctmods.immersivetechnology.common.blocks.multiblocks.*;
+import mctmods.immersivetechnology.common.blocks.multiblocks.logic.*;
+import mctmods.immersivetechnology.common.blocks.multiblocks.logic.helper.ITMultiblockBuilder;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;

@@ -8,7 +8,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.util.MultiblockOri
 import blusunrize.immersiveengineering.client.utils.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mctmods.immersivetechnology.client.models.ITDynamicModel;
-import mctmods.immersivetechnology.common.blocks.metal.multiblocks.logic.ITGasTurbineLogic;
+import mctmods.immersivetechnology.common.blocks.multiblocks.logic.ITGasTurbineLogic;
 import mctmods.immersivetechnology.core.ITClientConfig;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
