@@ -75,7 +75,6 @@ public class CokeOvenPreheaterBlockEntity extends IEBaseBlockEntity implements I
 
     @Override
     public boolean isDummy() {
-        if (dummy == -1) { return true; }
         return dummy == 1;
     }
 
@@ -83,7 +82,7 @@ public class CokeOvenPreheaterBlockEntity extends IEBaseBlockEntity implements I
     @Override
     public CokeOvenPreheaterBlockEntity master() {
         ITLib.IT_LOGGER.info("Placing Master");
-        BlockPos masterPos = getBlockPos().below(dummy);
+        BlockPos masterPos = getBlockPos().north(dummy);
         BlockEntity te = Utils.getExistingTileEntity(level, masterPos);
         if (te == null) { ITLib.IT_LOGGER.info("Master is Null"); }
         return te instanceof CokeOvenPreheaterBlockEntity heater?heater: null;
@@ -95,9 +94,9 @@ public class CokeOvenPreheaterBlockEntity extends IEBaseBlockEntity implements I
         state = state.setValue(IEProperties.MULTIBLOCKSLAVE, true);
 
         assert level != null;
-        level.setBlockAndUpdate(worldPosition.offset(0, 0, -1), state);
-        ((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, -1)))).dummy = -1;
-        ((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, -1)))).setFacing(this.getFacing());
+        //level.setBlockAndUpdate(worldPosition.offset(0, 0, -1), state);
+        //((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, -1)))).dummy = -1;
+        //((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, -1)))).setFacing(this.getFacing());
 
         level.setBlockAndUpdate(worldPosition.offset(0, 0, 1), state);
         ((CokeOvenPreheaterBlockEntity) Objects.requireNonNull(level.getBlockEntity(worldPosition.offset(0, 0, 1)))).dummy = 1;
@@ -111,7 +110,7 @@ public class CokeOvenPreheaterBlockEntity extends IEBaseBlockEntity implements I
         //if (level.getBlockEntity(getBlockPos().offset(0, 0, -dummy).offset(0, 0, -1)) instanceof CokeOvenPreheaterBlockEntity)
         //level.removeBlock(getBlockPos().offset(0, 0, -dummy).offset(0, 0, -1), false);
         assert level != null;
-        if (level.getBlockEntity(getBlockPos().offset(0, 0, -dummy).offset(0, 0, 1)) instanceof CokeOvenPreheaterBlockEntity) { level.removeBlock(getBlockPos().offset(0, 0, -dummy).offset(0, 0, 1), false); }
+        if (level.getBlockEntity(getBlockPos().offset(0, -dummy, 0).offset(0, 1, 0)) instanceof CokeOvenPreheaterBlockEntity) { level.removeBlock(getBlockPos().offset(0, -dummy, 0).offset(0, 1, 0), false); }
     }
 
     @Override

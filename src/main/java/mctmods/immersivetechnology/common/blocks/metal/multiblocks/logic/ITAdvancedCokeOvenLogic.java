@@ -5,6 +5,7 @@ import blusunrize.immersiveengineering.api.energy.AveragingEnergyStorage;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.component.IClientTickableComponent;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.*;
 import blusunrize.immersiveengineering.api.utils.CapabilityReference;
+import blusunrize.immersiveengineering.common.blocks.metal.BlastFurnacePreheaterBlockEntity;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.logic.NonMirrorableWithActiveBlock;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.process.ProcessContext;
 import blusunrize.immersiveengineering.common.gui.sync.GetterAndSetter;
@@ -335,7 +336,7 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         public int getProcessSpeed(IMultiblockLevel level) {
             int i = 1;
             for (final BlockPos offset : HEATER_OFFSETS) {
-                final CokeOvenPreheaterBlockEntity preheater = getPreheater(level, offset);
+                final BlastFurnacePreheaterBlockEntity preheater = getPreheater(level, offset);
                 if (preheater == null)
                     ITLib.IT_LOGGER.error("Preheater is Null!");
                 if (preheater!=null)
@@ -347,20 +348,20 @@ public class ITAdvancedCokeOvenLogic implements IMultiblockLogic<ITAdvancedCokeO
         @Override
         public void turnOff(IMultiblockLevel level) {
             for (final BlockPos offset : HEATER_OFFSETS) {
-                final CokeOvenPreheaterBlockEntity preheater = getPreheater(level, offset);
+                final BlastFurnacePreheaterBlockEntity preheater = getPreheater(level, offset);
                 if (preheater!=null) { preheater.turnOff(); }
             }
         }
 
         @Nullable
-        public CokeOvenPreheaterBlockEntity getPreheater(IMultiblockLevel level, BlockPos pos) {
+        public BlastFurnacePreheaterBlockEntity getPreheater(IMultiblockLevel level, BlockPos pos) {
             BlockEntity te = level.getBlockEntity(pos);
-            return te instanceof CokeOvenPreheaterBlockEntity heater?heater: null;
+            return te instanceof BlastFurnacePreheaterBlockEntity heater?heater: null;
         }
 
         public GetterAndSetter<Boolean> preheaterActive(IMultiblockLevel level, int index) {
             return GetterAndSetter.getterOnly(() -> {
-                final CokeOvenPreheaterBlockEntity heater = getPreheater(level, HEATER_OFFSETS[index]);
+                final BlastFurnacePreheaterBlockEntity heater = getPreheater(level, HEATER_OFFSETS[index]);
                 return heater!=null&&heater.active;
             });
         }
