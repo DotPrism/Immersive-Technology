@@ -146,8 +146,7 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
 
         if (state.burnRemaining > 0) {
             state.burnRemaining--;
-            state.speed = Math.min(state.maxSpeed, state.speed + state.speedUpRate);
-            state.active = true;
+            speedUp(state);
         } else if (state.rsState.isEnabled(ctx)) {
             FluidStack fluid = state.tanks.input_tank.getFluid();
             SteamTurbineRecipe recipe = state.recipeGetter.apply(
@@ -162,13 +161,12 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
                     }
                 }
                 state.burnRemaining = recipe.getTotalProcessTime() - 1;
-                state.speed = Math.min(state.maxSpeed, state.speed + state.speedUpRate);
-                state.active = true;
+                speedUp(state);
             } else {
-                state.speed = Math.max(0, state.speed - state.slowDownRate);
+                speedDown(state);
             }
         } else {
-            state.speed = Math.max(0, state.speed - state.slowDownRate);
+            speedDown(state);
         }
 
         pumpOutputOut(ctx);
@@ -177,6 +175,15 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
             ctx.markMasterDirty();
             ctx.requestMasterBESync();
         }
+    }
+
+    private void speedUp(State state) {
+        state.speed = Math.min(state.maxSpeed, state.speed + state.speedUpRate);
+        state.active = true;
+    }
+
+    private void speedDown(State state) {
+        state.speed = Math.max(0, state.speed - state.slowDownRate);
     }
 
     private void pumpOutputOut(IMultiblockContext<State> ctx) {
@@ -218,20 +225,6 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         return SteamTurbineShape.GETTER;
     }
 
-    public int speedUp(IMultiblockContext<State> ctx) {
-        final State state = ctx.getState();
-        int speedOut = 0;
-        speedOut += state.speedUpRate;
-        return speedOut;
-    }
-
-    public int slowDown(IMultiblockContext<State> ctx) {
-        final State state = ctx.getState();
-        int speedOut = 0;
-        speedOut -= state.slowDownRate;
-        return speedOut;
-    }
-
     private static double particleXZSpeed() { return ApiUtils.RANDOM.nextDouble(-0.015625, 0.015625); }
 
     public static class State implements IMultiblockState {
@@ -242,8 +235,6 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
 
         public RedstoneControl.RSState rsState = RedstoneControl.RSState.enabledByDefault();
 
-        private final int slowDownRate = 6;
-        private final int speedUpRate = 3;
         public int maxSpeed = 1800;
         public int speed = 0;
         private int burnRemaining = 0;
@@ -256,6 +247,9 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
         private int animation_fanFadeOut = 0;
         private transient float currentLevel = 0f;
         private transient float currentPitch = 0f;
+
+        private final int slowDownRate = 6;
+        private final int speedUpRate = 3;
 
         public State(IInitialMultiblockContext<State> ctx) {
             final Runnable markDirty = ctx.getMarkDirtyRunnable();
