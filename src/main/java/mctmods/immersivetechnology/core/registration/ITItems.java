@@ -1,5 +1,7 @@
 package mctmods.immersivetechnology.core.registration;
 
+import mctmods.immersivetechnology.common.blocks.multiblocks.ITGasTurbine;
+import mctmods.immersivetechnology.common.blocks.multiblocks.ITSteamTurbine;
 import mctmods.immersivetechnology.common.items.helper.ITBaseItem;
 import mctmods.immersivetechnology.common.items.ITMBFormationItem;
 import mctmods.immersivetechnology.core.lib.ITLib;
@@ -28,7 +30,7 @@ public class ITItems {
 
     public static HashMap<String, RegistryObject<? extends Item>> getItemRegistryMap() { return ITEM_REGISTRY_MAP; }
 
-    public static final ItemRegObject<ITMBFormationItem> IT_FORMATION_TOOL = simple(ITMBFormationItem::new);
+    public static final ItemRegObject<ITMBFormationItem> IT_FORMATION_TOOL = register("it_formation_tool", ITMBFormationItem::new);
 
     public static void initItems() { }
 

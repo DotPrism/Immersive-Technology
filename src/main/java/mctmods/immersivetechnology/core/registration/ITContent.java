@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 
-@SuppressWarnings("all")
 public class ITContent {
     public static void initializeManualEntries() {
         ManualInstance instance = ManualHelper.getManual();
@@ -30,6 +29,7 @@ public class ITContent {
         multiblockEntry(instance, multiblock_category, "coke_oven_advanced");
         multiblockEntry(instance, multiblock_category, "steam_turbine");
         multiblockEntry(instance, multiblock_category, "gas_turbine");
+        //multiblockEntry(instance, multiblock_category, "solar_tower");
     }
 
     private static void multiblockEntry(ManualInstance instance, InnerNode<ResourceLocation, ManualEntry> category, String id) {
@@ -49,5 +49,6 @@ public class ITContent {
         ITTags.initialize();
         ITRecipeTypes.init();
         ITSounds.init(event);
+        ITParticles.REGISTER.register(event);
     }
 }

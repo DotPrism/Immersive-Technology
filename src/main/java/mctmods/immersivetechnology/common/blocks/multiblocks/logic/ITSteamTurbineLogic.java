@@ -14,6 +14,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.util.ShapeType;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.StoredCapability;
 import blusunrize.immersiveengineering.common.util.CachedRecipe;
 import blusunrize.immersiveengineering.common.util.Utils;
+import mctmods.immersivetechnology.client.particles.ColoredSmokeData;
 import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.SteamTurbineRecipe;
 import mctmods.immersivetechnology.common.blocks.multiblocks.shapes.SteamTurbineShape;
 import mctmods.immersivetechnology.core.lib.ITLib;
@@ -24,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -38,6 +41,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import org.joml.Vector3f;
+
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
@@ -102,22 +107,32 @@ public class ITSteamTurbineLogic implements IMultiblockLogic<ITSteamTurbineLogic
             BlockPos outputRel = new BlockPos(1, 0, 1);
             BlockPos outputAbs = ctx.getLevel().toAbsolute(outputRel);
             BlockPos adjacentAbs = outputAbs.relative(facing);
-            Level level = ctx.getLevel().getRawLevel();
-            BlockEntity te = level.getBlockEntity(adjacentAbs);
+            Level level2 = ctx.getLevel().getRawLevel();
+            BlockEntity te = level2.getBlockEntity(adjacentAbs);
             boolean connected = false;
             if (te != null) {
                 LazyOptional<IFluidHandler> handlerOpt = te.getCapability(ForgeCapabilities.FLUID_HANDLER, facing.getOpposite());
-                if (handlerOpt.isPresent()) {
-                    connected = true;
-                }
+                if (handlerOpt.isPresent()) connected = true;
             }
             if (!connected) {
-                Vec3 smokeOffset = new Vec3(facing.getStepX() * 0.5, facing.getStepY() * 0.5, facing.getStepZ() * 0.5);
-                Vec3 smokePos = ctx.getLevel().toAbsolute(new Vec3(1.5, 0.5, 1.5)).add(smokeOffset);
-                level.addAlwaysVisibleParticle(
-                        ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                Vec3 smokePos = new Vec3(adjacentAbs.getX() + 0.5, adjacentAbs.getY() + 0.5, adjacentAbs.getZ() + 0.5);
+                double velX = facing.getStepX() * 0.125 + particleXZSpeed();
+                double velY = facing.getStepY() * 0.1 + 0.0625;
+                double velZ = facing.getStepZ() * 0.125 + particleXZSpeed();
+
+                FluidStack outFluid = state.tanks.output_tank.getFluid();
+                float r = 0.5F, g = 0.5F, b = 0.5F;
+                if (!outFluid.isEmpty()) {
+                    int tint = IClientFluidTypeExtensions.of(outFluid.getFluid()).getTintColor(outFluid);
+                    r = ((tint >> 16) & 0xFF) / 255f;
+                    g = ((tint >> 8) & 0xFF) / 255f;
+                    b = (tint & 0xFF) / 255f;
+                }
+
+                level2.addAlwaysVisibleParticle(
+                        new ColoredSmokeData(r, g, b),
                         smokePos.x, smokePos.y, smokePos.z,
-                        particleXZSpeed(), 0.0625, particleXZSpeed()
+                        velX, velY, velZ
                 );
             }
         }

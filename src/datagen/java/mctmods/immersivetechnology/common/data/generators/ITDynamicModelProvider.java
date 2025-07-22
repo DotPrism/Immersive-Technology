@@ -17,22 +17,17 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import javax.annotation.Nonnull;
 import java.util.Map.Entry;
 
-@SuppressWarnings("all")
-public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider.SimpleModelBuilder>
-{
+public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider.SimpleModelBuilder>  {
     private final ITBlockStateProvider multiblocks;
 
-    public ITDynamicModelProvider(ITBlockStateProvider multiblocks, PackOutput output, ExistingFileHelper existingFileHelper)
-    {
+    public ITDynamicModelProvider(ITBlockStateProvider multiblocks, PackOutput output, ExistingFileHelper existingFileHelper)  {
         super(output, ITLib.MODID, "dynamic", rl -> new SimpleModelBuilder(rl, existingFileHelper), existingFileHelper);
         this.multiblocks = multiblocks;
     }
 
     @Override
-    protected void registerModels()
-    {
-        for(Entry<Block, ModelFile> multiblock : multiblocks.unsplitModels.entrySet())
-            withExistingParent(BuiltInRegistries.BLOCK.getKey(multiblock.getKey()).getPath(), multiblock.getValue().getLocation());
+    protected void registerModels() {
+        for(Entry<Block, ModelFile> multiblock : multiblocks.unsplitModels.entrySet()) { withExistingParent(BuiltInRegistries.BLOCK.getKey(multiblock.getKey()).getPath(), multiblock.getValue().getLocation()); }
         getBuilder(CokeOvenPreheaterRenderer.NAME)
                 .customLoader(ObjModelBuilder::begin)
                 .modelLocation(rl("models/block/coke_oven_preheater.obj"))
@@ -43,7 +38,6 @@ public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider
                 .modelLocation(rl("models/block/multiblock/obj/steam_turbine/steam_turbine_rotor.obj"))
                 .flipV(true)
                 .end();
-
         getBuilder(SteamTurbineRenderer.NAME_EAST_WEST)
                 .customLoader(ObjModelBuilder::begin)
                 .modelLocation(rl("models/block/multiblock/obj/steam_turbine/steam_turbine_rotor_west_east.obj"))
@@ -54,7 +48,6 @@ public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider
                 .modelLocation(rl("models/block/multiblock/obj/gas_turbine/gas_turbine_rotor.obj"))
                 .flipV(true)
                 .end();
-
         getBuilder(GasTurbineRenderer.NAME_EAST_WEST)
                 .customLoader(ObjModelBuilder::begin)
                 .modelLocation(rl("models/block/multiblock/obj/gas_turbine/gas_turbine_rotor_east_west.obj"))
@@ -68,17 +61,9 @@ public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider
 
     @Nonnull
     @Override
-    public String getName()
-    {
-        return "IT Dynamic models";
-    }
+    public String getName() { return "IT Dynamic models"; }
 
-    public static class SimpleModelBuilder extends ModelBuilder<SimpleModelBuilder>
-    {
-
-        public SimpleModelBuilder(ResourceLocation outputLocation, ExistingFileHelper existingFileHelper)
-        {
-            super(outputLocation, existingFileHelper);
-        }
+    public static class SimpleModelBuilder extends ModelBuilder<SimpleModelBuilder> {
+        public SimpleModelBuilder(ResourceLocation outputLocation, ExistingFileHelper existingFileHelper) { super(outputLocation, existingFileHelper); }
     }
 }

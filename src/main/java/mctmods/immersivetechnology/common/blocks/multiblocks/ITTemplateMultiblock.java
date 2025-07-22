@@ -7,9 +7,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistra
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockBE;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockBlockEntityDummy;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockBlockEntityMaster;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockPartBlock;
 import com.google.common.base.Preconditions;
-import mctmods.immersivetechnology.common.items.ITMBFormationItem;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -38,71 +36,42 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
 
     @Override
     public boolean createStructure(Level world, BlockPos pos, Direction side, Player player) {
-        if (player.getMainHandItem().getItem() instanceof ITMBFormationItem)
-            return super.createStructure(world, pos, side, player);
+        player.getMainHandItem().getItem();
         return super.createStructure(world, pos, side, player);
     }
 
     @Override
-    public float getManualScale() {
-        return 0;
-    }
+    public float getManualScale() { return 0; }
 
     @Override
     protected void replaceStructureBlock(StructureTemplate.StructureBlockInfo info, Level world, BlockPos actualPos, boolean mirrored, Direction clickDirection, Vec3i offsetFromMaster) {
-        BlockState newState = ((MultiblockPartBlock<?>) this.logic.block().get()).defaultBlockState();
-        newState = (BlockState) newState.setValue(IEProperties.MULTIBLOCKSLAVE, !offsetFromMaster.equals(Vec3i.ZERO));
-        if (newState.hasProperty(IEProperties.MIRRORED)) {
-            newState = (BlockState) newState.setValue(IEProperties.MIRRORED, mirrored);
-        }
-
-        if (newState.hasProperty(IEProperties.FACING_HORIZONTAL)) {
-            newState = (BlockState) newState.setValue(IEProperties.FACING_HORIZONTAL, clickDirection.getOpposite());
-        }
-
+        BlockState newState = this.logic.block().get().defaultBlockState();
+        newState = newState.setValue(IEProperties.MULTIBLOCKSLAVE, !offsetFromMaster.equals(Vec3i.ZERO));
+        if (newState.hasProperty(IEProperties.MIRRORED)) { newState = newState.setValue(IEProperties.MIRRORED, mirrored); }
+        if (newState.hasProperty(IEProperties.FACING_HORIZONTAL)) { newState = newState.setValue(IEProperties.FACING_HORIZONTAL, clickDirection.getOpposite()); }
         BlockState oldState = world.getBlockState(actualPos);
         world.setBlock(actualPos, newState, 0);
         BlockEntity curr = world.getBlockEntity(actualPos);
-        if (curr instanceof MultiblockBlockEntityDummy<?> dummy) {
-            dummy.getHelper().setPositionInMB(info.pos());
-        } else if (!(curr instanceof MultiblockBlockEntityMaster)) {
-            ITLib.IT_LOGGER.error("Expected MB TE at {} during placement", actualPos);
-        }
-
+        if (curr instanceof MultiblockBlockEntityDummy<?> dummy) { dummy.getHelper().setPositionInMB(info.pos()); }
+        else if (!(curr instanceof MultiblockBlockEntityMaster)) { ITLib.IT_LOGGER.error("Expected MB TE at {} during placement", actualPos); }
         LevelChunk chunk = world.getChunkAt(actualPos);
         world.markAndNotifyBlock(actualPos, chunk, oldState, newState, 3, 512);
     }
 
-    public ResourceLocation getBlockName() {
-        return this.logic.id();
-    }
+    public ResourceLocation getBlockName() { return this.logic.id(); }
 
     @Override
-    public Component getDisplayName() {
-        return this.logic.block().get().getName();
-    }
+    public Component getDisplayName() { return this.logic.block().get().getName(); }
 
     @Override
-    public Block getBlock() {
-        return this.logic.block().get();
-    }
+    public Block getBlock() { return this.logic.block().get(); }
 
-    /**
-     * @return
-     * @deprecated Replaced by {@link #getBlock()}
-     */
-    @Deprecated
-    public Block getBaseBlock() {
-        return getBlock();
-    }
+    public Block getBaseBlock() { return getBlock(); }
 
-    public Vec3i getSize(@Nullable Level world) {
-        return this.size;
-    }
+    public Vec3i getSize(@Nullable Level world) { return this.size; }
 
     @Override
-    public void initializeClient(Consumer<ClientMultiblocks.MultiblockManualData> consumer) {
-    }
+    public void initializeClient(Consumer<ClientMultiblocks.MultiblockManualData> consumer) { }
 
     @Nonnull
     public TemplateMultiblock.TemplateData getTemplate(@Nonnull Level world) {
@@ -114,11 +83,7 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
 
     protected void prepareBlockForDisassembly(Level world, BlockPos pos) {
         BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof IMultiblockBE<?> multiblockBE) {
-            multiblockBE.getHelper().markDisassembling();
-        } else if (be != null) {
-            ITLib.IT_LOGGER.error("Expected multiblock TE at {}, got {}", pos, be);
-        }
-
+        if (be instanceof IMultiblockBE<?> multiblockBE) { multiblockBE.getHelper().markDisassembling(); }
+        else if (be != null) { ITLib.IT_LOGGER.error("Expected multiblock TE at {}, got {}", pos, be); }
     }
 }

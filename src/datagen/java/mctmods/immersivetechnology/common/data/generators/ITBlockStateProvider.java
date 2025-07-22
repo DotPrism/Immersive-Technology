@@ -73,11 +73,14 @@ public class ITBlockStateProvider extends BlockStateProvider {
         genericmultiblockMirror("gas_turbine");
         genericmultiblock("alternator");
         genericmultiblock("coke_oven_advanced");
+        //genericmultiblock("solar_tower");
+
         createSimpleBlock(ITBlocks.getBlock.apply("reinforced_coke_brick"), models().cubeAll("reinforced_coke_brick", modLoc("block/reinforced_coke_brick")));
         createSimpleBlock(ITBlocks.getBlock.apply("creative_barrel"), models().cubeAll("creative_barrel", modLoc("block/creative_barrel")));
         createMultiblock(ITBlocks.MetalDevices.COKE_OVEN_PREHEATER, split(innerObj("block/coke_oven_preheater.obj"), COLUMN_THREE));
+
         ModelFile emptyModel = models().withExistingParent("empty", mcLoc("block/block"))
-                .renderType("cutout")  // Optional: Matches fluid render type if needed
+                .renderType("cutout")
                 .texture("particle", "#missingno");
 
         for (ITBlocks.BlockEntry<?> fluidEntry : ITFluids.ALL_FLUID_BLOCKS) {

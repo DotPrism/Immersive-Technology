@@ -15,6 +15,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.util.ShapeType;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.StoredCapability;
 import blusunrize.immersiveengineering.common.util.CachedRecipe;
 import blusunrize.immersiveengineering.common.util.Utils;
+import mctmods.immersivetechnology.client.particles.ColoredSmokeData;
 import mctmods.immersivetechnology.common.blocks.multiblocks.recipe.GasTurbineRecipe;
 import mctmods.immersivetechnology.common.blocks.multiblocks.shapes.GasTurbineShape;
 import mctmods.immersivetechnology.core.lib.ITLib;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -41,6 +43,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -50,7 +53,7 @@ import java.util.function.Consumer;
 
 public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.State>, IServerTickableComponent<ITGasTurbineLogic.State>, IClientTickableComponent<ITGasTurbineLogic.State> {
     private static final List<BlockPos> FLUID_POS1 = List.of(new BlockPos(2, 1, 7));
-    private static final List<BlockPos> FLUID_POS2 = List.of(new BlockPos(1, 0, 0));
+    private static final List<BlockPos> FLUID_POS2 = List.of(new BlockPos(1, 0, 1));
     public static final BlockPos REDSTONE_POS = new BlockPos(0, 1, 7);
     private static final Set<CapabilityPosition> ENERGY_INPUTS_HV = Set.of( new CapabilityPosition(2,0,5, RelativeBlockFace.LEFT));
     private static final Set<CapabilityPosition> ENERGY_INPUTS_MV = Set.of( new CapabilityPosition(0,0,5, RelativeBlockFace.RIGHT));
@@ -180,25 +183,35 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         }
         if (state.active && ctx.getLevel().shouldTickModulo(2)) {
             Direction facing = ctx.getLevel().getOrientation().front();
-            BlockPos outputRel = new BlockPos(1, 0, 0);
+            BlockPos outputRel = new BlockPos(1, 0, 1);
             BlockPos outputAbs = ctx.getLevel().toAbsolute(outputRel);
             BlockPos adjacentAbs = outputAbs.relative(facing);
-            Level level2 = ctx.getLevel().getRawLevel();  // Renamed to avoid shadowing
+            Level level2 = ctx.getLevel().getRawLevel();
             BlockEntity te = level2.getBlockEntity(adjacentAbs);
             boolean connected = false;
             if (te != null) {
                 LazyOptional<IFluidHandler> handlerOpt = te.getCapability(ForgeCapabilities.FLUID_HANDLER, facing.getOpposite());
-                if (handlerOpt.isPresent()) {
-                    connected = true;
-                }
+                if (handlerOpt.isPresent()) connected = true;
             }
             if (!connected) {
-                Vec3 smokeOffset = new Vec3(facing.getStepX() * 0.5, facing.getStepY() * 0.5, facing.getStepZ() * 0.5);
-                Vec3 smokePos = ctx.getLevel().toAbsolute(new Vec3(1.5, 0.5, 0.5)).add(smokeOffset);
+                Vec3 smokePos = new Vec3(adjacentAbs.getX() + 0.5, adjacentAbs.getY() + 0.5, adjacentAbs.getZ() + 0.5);
+                double velX = facing.getStepX() * 0.125 + particleXZSpeed();
+                double velY = facing.getStepY() * 0.1 + 0.0625;
+                double velZ = facing.getStepZ() * 0.125 + particleXZSpeed();
+
+                FluidStack outFluid = state.tanks.output_tank.getFluid();
+                float r = 0.5F, g = 0.5F, b = 0.5F;
+                if (!outFluid.isEmpty()) {
+                    int tint = IClientFluidTypeExtensions.of(outFluid.getFluid()).getTintColor(outFluid);
+                    r = ((tint >> 16) & 0xFF) / 255f;
+                    g = ((tint >> 8) & 0xFF) / 255f;
+                    b = (tint & 0xFF) / 255f;
+                }
+
                 level2.addAlwaysVisibleParticle(
-                        ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                        new ColoredSmokeData(r, g, b),
                         smokePos.x, smokePos.y, smokePos.z,
-                        particleXZSpeed(), 0.0625, particleXZSpeed()
+                        velX, velY, velZ
                 );
             }
         }
@@ -326,7 +339,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
     private void pumpOutputOut(IMultiblockContext<State> ctx) {
         final State state = ctx.getState();
         if (state.tanks.output_tank.isEmpty()) { return; }
-        BlockPos outputPos = ctx.getLevel().toAbsolute(new BlockPos(1, 0, 0));
+        BlockPos outputPos = ctx.getLevel().toAbsolute(new BlockPos(1, 0, 1));
         Direction facing = ctx.getLevel().getOrientation().front();
         BlockPos adjacentPos = outputPos.relative(facing);
         Level world = ctx.getLevel().getRawLevel();
@@ -347,14 +360,10 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
     }
 
     @Override
-    public State createInitialState(IInitialMultiblockContext<State> ctx) {
-        return new State(ctx);
-    }
+    public State createInitialState(IInitialMultiblockContext<State> ctx) { return new State(ctx); }
 
     @Override
-    public Function<BlockPos, VoxelShape> shapeGetter(ShapeType shapeType) {
-        return GasTurbineShape.GETTER;
-    }
+    public Function<BlockPos, VoxelShape> shapeGetter(ShapeType shapeType) { return GasTurbineShape.GETTER; }
 
     @Override
     public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
@@ -362,7 +371,7 @@ public class ITGasTurbineLogic implements IMultiblockLogic<ITGasTurbineLogic.Sta
         if (cap == ForgeCapabilities.ENERGY && ENERGY_INPUTS_HV.contains(position)) { return state.energyCapHV.cast(ctx); }
         if (cap == ForgeCapabilities.ENERGY && ENERGY_INPUTS_MV.contains(position)) { return state.energyCapMV.cast(ctx); }
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
-            if (position.side() == RelativeBlockFace.BACK && FLUID_POS1.contains(position.posInMultiblock())) { return ctx.getState().fluidCap.cast(ctx); }
+            if (position.side()==null || position.side() == RelativeBlockFace.BACK && FLUID_POS1.contains(position.posInMultiblock())) { return ctx.getState().fluidCap.cast(ctx); }
             else if (position.side() == RelativeBlockFace.FRONT && FLUID_POS2.contains(position.posInMultiblock())) { return ctx.getState().fluidCapExhaust.cast(ctx); }
         }
         return LazyOptional.empty();

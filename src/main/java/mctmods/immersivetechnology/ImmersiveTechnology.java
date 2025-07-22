@@ -34,16 +34,13 @@ import static mctmods.immersivetechnology.core.lib.ITLib.MODID;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(MODID)
-public class ImmersiveTechnology
-{
-    public static CommonProxy proxy = Util.make(() ->
-    {
-        if(FMLLoader.getDist().isClient()) return new ClientProxy();
+public class ImmersiveTechnology {
+    public static CommonProxy proxy = Util.make(() -> {
+        if (FMLLoader.getDist().isClient()) return new ClientProxy();
         return new CommonProxy();
     });
 
-    public ImmersiveTechnology()
-    {
+    public ImmersiveTechnology() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ITLib.IT_LOGGER.info("IT Starting");
         modEventBus.addListener(this::commonSetup);
@@ -53,7 +50,7 @@ public class ImmersiveTechnology
         ITRegistrationHolder.addRegistersToEventBus(modEventBus);
 
         ITLib.IT_LOGGER.info("Starting Proxy Mod Construction");
-        proxy.modConstruction(modEventBus);
+        CommonProxy.modConstruction(modEventBus);
 
         ITLib.IT_LOGGER.info("Initialzing Packet Handler");
         ITPacketHandler.initialize();
@@ -67,29 +64,25 @@ public class ImmersiveTechnology
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ITClientConfig.SPEC);
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
+    private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
         ITLib.IT_LOGGER.info("HELLO FROM COMMON SETUP");
 
-        for(ITFluids.FluidEntry entry : ITFluids.ALL_ENTRIES)
+        for (ITFluids.FluidEntry entry : ITFluids.ALL_ENTRIES)
             DispenserBlock.registerBehavior(entry.getBucket(), BUCKET_DISPENSE_BEHAVIOR);
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
+    public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         ITLib.IT_LOGGER.info("HELLO from server starting");
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
+    public static class ClientModEvents {
         @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
+        public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
             ITLib.IT_LOGGER.info("HELLO FROM CLIENT SETUP");
             ITLib.IT_LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
