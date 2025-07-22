@@ -68,9 +68,10 @@ public class ITBlockStateProvider extends BlockStateProvider {
     protected void registerStatesAndModels() {
         ITLib.IT_LOGGER.info("Generating Multiblock Splits");
         genericmultiblockMirror("boiler");
-        //genericmultiblockMirror("distiller");
+        genericmultiblockMirror("distiller");
         genericmultiblockMirror("steam_turbine");
         genericmultiblockMirror("gas_turbine");
+        genericmultiblockMirror("solar_tower");
         genericmultiblock("alternator");
         genericmultiblock("coke_oven_advanced");
         createSimpleBlock(ITBlocks.getBlock.apply("reinforced_coke_brick"), models().cubeAll("reinforced_coke_brick", modLoc("block/reinforced_coke_brick")));

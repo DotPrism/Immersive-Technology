@@ -137,6 +137,7 @@ public class ITMultiblockProvider {
         registerMB("gas_turbine", ITGasTurbine.INSTANCE, GAS_TURBINE);
         registerMB("coke_oven_advanced", ITAdvancedCokeOven.INSTANCE, ADV_COKE_OVEN);
         registerMB("solar_tower", ITSolarTower.INSTANCE, SOLAR_TOWER);
+        registerMB("distiller", ITDistiller.INSTANCE, DISTILLER);
     }
 
     public static void forceClassLoad() {

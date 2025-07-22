@@ -30,6 +30,7 @@ public class ITBlockLootProvider extends BlockLootSubProvider {
         add(ITMultiblockProvider.GAS_TURBINE.block().get(), noDrop());
         add(ITMultiblockProvider.ALTERNATOR.block().get(), noDrop());
         add(ITMultiblockProvider.ADV_COKE_OVEN.block().get(), noDrop());
+        add(ITMultiblockProvider.DISTILLER.block().get(), noDrop());
 
         // Fluid blocks: no drops
         ITFluids.ALL_ENTRIES.forEach(entry -> add(entry.getBlock(), noDrop()));

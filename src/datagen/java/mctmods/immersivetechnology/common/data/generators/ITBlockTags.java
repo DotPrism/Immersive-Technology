@@ -41,6 +41,8 @@ public class ITBlockTags extends BlockTagsProvider
         registerMineable(tag2, ITMultiblockProvider.ALTERNATOR);
         registerMineable(tag2, ITMultiblockProvider.STEAM_TURBINE);
         registerMineable(tag2, ITMultiblockProvider.GAS_TURBINE);
+        registerMineable(tag2, ITMultiblockProvider.SOLAR_TOWER);
+        registerMineable(tag2, ITMultiblockProvider.DISTILLER);
         registerMineable(tag, ITBlocks.MetalDevices.COKE_OVEN_PREHEATER);
     }
 
