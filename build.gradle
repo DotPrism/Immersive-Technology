@@ -6,9 +6,9 @@ import org.gradle.work.Incremental
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle' version '6.0.+'
+    id 'net.minecraftforge.gradle' version '6.0.+'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+    id 'org.spongepowered.mixin' version '0.7.+'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.6'
     id 'eclipse'
@@ -33,7 +33,7 @@ gradle.taskGraph.whenReady { graph ->
 }
 
 version = '0.1.0-a' + version_buildnumber
-group = 'mctmods.immersivetechnology' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = 'mctmods.immersivetechnology'
 archivesBaseName = 'immersivetechnology'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -68,6 +68,20 @@ sourceSets {
     }
 }
 
+ext {
+    modid = 'immersivetechnology'
+    version_minecraft = versionProps['mc_version']
+    version_forge = versionProps['forge_version']
+    version_jei = versionProps['jei_version']
+    version_parchment = versionProps['version_parchment']
+    version_ie = versionProps['version_ie']
+    version_ig = versionProps['version_ig']
+    mod_license = versionProps['mod_license']
+    mod_name = versionProps['mod_name']
+    mod_authors = versionProps['mod_authors']
+    mod_description = versionProps['mod_description']
+}
+
 def version_replaces = [
         'version'      : project.version,
         'build_number' : version_buildnumber,
@@ -75,11 +89,11 @@ def version_replaces = [
         'forge_version': version_forge,
         'jei_version'  : version_jei,
         'mod_license'  : mod_license,
-        'mod_name'  : mod_name,
-        'mod_authors' : mod_authors,
+        'mod_name'     : mod_name,
+        'mod_authors'  : mod_authors,
         'mod_description': mod_description,
-        'version_ie': version_ie,
-        'version_ig': version_ig
+        'version_ie'   : version_ie,
+        'version_ig'   : version_ig
 ]
 
 def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
@@ -108,10 +122,6 @@ task copyModsTomlForIntelliJ(type: Copy) {
 }
 
 copyModsTomlForIntelliJ.dependsOn processResources
-afterEvaluate {
-    // prepareRuns doesn't exist before afterEvaluate
-    prepareRuns.dependsOn copyModsTomlForIntelliJ
-}
 
 minecraft {
     mappings channel: 'parchment', version: "$version_parchment-$version_minecraft"
@@ -121,54 +131,80 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN'
             property 'forge.enabledGameTestNamespaces', 'immersiveenergy'
-
-            // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            jvmArgs = [
+                    '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.invoke=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+                    '--add-opens=java.base/java.io=ALL-UNNAMED',
+                    '--add-opens=java.base/java.net=ALL-UNNAMED',
+                    '--add-opens=java.base/java.nio=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.cs=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.security.action=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.util.calendar=ALL-UNNAMED',
+                    '--add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED'
+            ]
             ideaModule project.name + ".main"
             mods {
-                immersivetechnology {
-                    source sourceSets.main
-                }
+                immersivetechnology { source sourceSets.main }
             }
         }
-
         server {
             workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', ''
-
-            // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'immersivetechnology'
-
-            // Disable GUI by default, the IDE console can be used to enter commands
             arg '-nogui'
-
+            jvmArgs = [
+                    '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.invoke=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+                    '--add-opens=java.base/java.io=ALL-UNNAMED',
+                    '--add-opens=java.base/java.net=ALL-UNNAMED',
+                    '--add-opens=java.base/java.nio=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.cs=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.security.action=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.util.calendar=ALL-UNNAMED',
+                    '--add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED'
+            ]
             mods {
-                immersivetechnology {
-                    source sourceSets.main
-                }
+                immersivetechnology { source sourceSets.main }
             }
         }
         data {
             workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', ''
-
-            // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
             property 'fml.earlyprogresswindow', 'false'
-
             args '--mod', 'immersivetechnology', '--all', '--output', file('src/generated/resources/'), '--validate',
                     '--existing', sourceSets.main.resources.srcDirs[0]
-            ideaModule project.name+".datagen"
-
+            jvmArgs = [
+                    '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.invoke=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+                    '--add-opens=java.base/java.io=ALL-UNNAMED',
+                    '--add-opens=java.base/java.net=ALL-UNNAMED',
+                    '--add-opens=java.base/java.nio=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.cs=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.security.action=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.util.calendar=ALL-UNNAMED',
+                    '--add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED'
+            ]
+            ideaModule project.name + ".datagen"
             mods {
                 immersivetechnology {
                     source sourceSets.main
@@ -179,12 +215,25 @@ minecraft {
         gameTestServer {
             workingDirectory project.file('run')
             property 'forge.logging.markers', ''
-
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'immersivetechnology'
-
+            jvmArgs = [
+                    '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.invoke=ALL-UNNAMED',
+                    '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+                    '--add-opens=java.base/java.io=ALL-UNNAMED',
+                    '--add-opens=java.base/java.net=ALL-UNNAMED',
+                    '--add-opens=java.base/java.nio=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+                    '--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.nio.cs=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.security.action=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.util.calendar=ALL-UNNAMED',
+                    '--add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED'
+            ]
             ideaModule project.name + ".gametest"
-
             mods {
                 immersivetechnology {
                     source sourceSets.main
@@ -196,6 +245,7 @@ minecraft {
 }
 
 repositories {
+    maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
     maven { // JEI & BlockModelSplitter
         name 'Jared maven'
         url 'https://maven.blamejared.com/'
@@ -220,6 +270,10 @@ repositories {
             includeModule("org.squiddev", "Cobalt")
         }
     }
+    maven {
+        name 'ParchmentMC'
+        url 'https://ldtteam.jfrog.io/artifactory/parchmentmc-public/'
+    }
 }
 
 mixin {
@@ -230,18 +284,21 @@ mixin {
 project.ext.lwjglVersion = "3.3.6"
 project.ext.lwjglNatives = "natives-linux"
 dependencies {
-    minecraft "net.neoforged:forge:${version_minecraft}-${version_forge}"
+    minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
 
     compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge-api:${version_jei}")
     compileOnly fg.deobf("mezz.jei:jei-1.20.1-common-api:${version_jei}")
 
     implementation fg.deobf("mezz.jei:jei-1.20.1-forge:${version_jei}")
 
-    implementation fg.deobf("curse.maven:immersive-engineering-231951:5224387")
-    implementation fg.deobf("curse.maven:immersive-geology-370614:6223949")
+    implementation fg.deobf("curse.maven:immersive-engineering-231951:6206989")
+    implementation fg.deobf("curse.maven:immersive-geology-370614:6411647")
 
     implementation fg.deobf("curse.maven:jade-324717:6271651")
 
+    datagenImplementation("blusunrize.immersiveengineering:ImmersiveEngineering:${version_ie}:datagen")
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     // Ad Astra
 //    implementation fg.deobf("curse.maven:resourceful-config-714059:5020441")
 //    implementation fg.deobf("curse.maven:botarium-704113:5486070")
@@ -257,10 +314,6 @@ dependencies {
     // TFC
 //    implementation fg.deobf("vazkii.patchouli:Patchouli:$version_minecraft-$version_patchouli-FORGE")
 //    implementation fg.deobf("curse.maven:terrafirmacraft-302973:5943050")
-
-    datagenImplementation("blusunrize.immersiveengineering:ImmersiveEngineering:${version_ie}:datagen")
-
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 def customGradle = rootProject.file('custom.gradle');
@@ -285,10 +338,6 @@ task signJar(type: SignJar) {
 }
 
 build.dependsOn signJar
-
-afterEvaluate {
-    reobfJar.enabled = true
-}
 
 task datagenJar(type: Jar, dependsOn: datagenClasses) {
     archiveClassifier = 'datagen'
